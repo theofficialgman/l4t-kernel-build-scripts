@@ -53,7 +53,6 @@ echo "Done"
 #Handle Switchroot DTS files
 echo "Extracting DTS stuff"
 mkdir -p ./kernel_r32/hardware/nvidia/platform/t210/icosa
-read -n 1
 cd l4t-platform-t210-switch
 cd $CURPWD
 mv ./l4t-platform-t210-switch*/* ./kernel_r32/hardware/nvidia/platform/t210/icosa/
