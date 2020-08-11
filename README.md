@@ -15,7 +15,7 @@ Options:
 
 ```sh
 mkdir -p $(pwd)/out/
-docker run --rm -it -v $(pwd)/out:/build alizkan/l4t_kernel_prep:latest
+docker run --rm -it -v $(pwd)/out:/build alizkan/l4t_kernel_prep:latest --cpus 4
 ```
 
 ## Building without Docker
