@@ -1,7 +1,8 @@
 #!/bin/bash
 
-Download() {
-	cd ${CURPWD}
+Prepare() {
+	cd ${BUILD_DIR}
+
 	# Download Nvidia Bits
 	echo "Downloading All Required Files, This may take a while..... Please Wait"
 	wget -O "linux-nvgpu-r32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_kernel_nvgpu-lineage-16.0.tar.gz" > /dev/null
@@ -11,26 +12,13 @@ Download() {
 	wget -O "platform-tegra-t210-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common-lineage-16.0.tar.gz" > /dev/null
 
 	# Clone Switchroot Bits
-	if [[ -z ${branch} ]]; then
-		#read -p 'Choose a branch to use for https://gitlab.com/switchroot/l4t-kernel-4.9: ' branch
-		git clone "https://gitlab.com/switchroot/l4t-kernel-4.9.git" > /dev/null
 
-		#read -p 'Choose a branch to use for https://gitlab.com/switchroot/l4t-kernel-nvidia: ' branch
-		git clone "https://gitlab.com/switchroot/l4t-kernel-nvidia.git" > /dev/null
+	git clone -b linux-3.0.2 "https://gitlab.com/switchroot/l4t-kernel-4.9.git" > /dev/null
+	git clone -b linux-3.0.1 "https://gitlab.com/switchroot/l4t-kernel-nvidia.git" > /dev/null
+	git clone -b linux-rel32 "https://gitlab.com/switchroot/l4t-platform-t210-switch.git" > /dev/null
 
-		#read -p 'Choose a branch to use for https://gitlab.com/switchroot/l4t-platform-t210-switch: ' branch
-		git clone "https://gitlab.com/switchroot/l4t-platform-t210-switch.git" > /dev/null
-	else
-		git clone -b ${branch} "https://gitlab.com/switchroot/l4t-kernel-4.9.git" > /dev/null
-		git clone -b ${branch} "https://gitlab.com/switchroot/l4t-kernel-nvidia.git" > /dev/null
-		git clone -b ${branch} "https://gitlab.com/switchroot/l4t-platform-t210-switch.git" > /dev/null
-	fi
-}
-
-Build() {
 	#Handle Standard Kernel Bits
 	echo "Extracting and Patching L4T-Switch 4.9"
-	cd ${CURPWD}
 	mkdir -p ${KERNEL_DIR}
 	mv ./l4t-kernel-4.9 "${KERNEL_DIR}/kernel-4.9"
 	echo "Done"
@@ -46,7 +34,7 @@ Build() {
 	echo "Extracting DTS stuff"
 	mkdir -p ./kernel_r32/hardware/nvidia/platform/t210/icosa
 	cd l4t-platform-t210-switch
-	cd ${CURPWD}
+	cd ${BUILD_DIR}
 	mv ./l4t-platform-t210-switch*/* ./kernel_r32/hardware/nvidia/platform/t210/icosa/
 	rm -rf ./l4t-platform-t210-switch*
 	echo "Done"
@@ -96,30 +84,32 @@ Build() {
 	mv ./common-t210/* ./kernel_r32/hardware/nvidia/platform/t210/common/
 	rm -r common-t210
 	echo "Done"
+}
 
+Build() {
 	echo "Preparing Source and Creating Defconfig"
-	cd "${KERNEL_DIR}/kernel-4.9"
+	cd "${BUILD_DIR}/${KERNEL_DIR}/kernel-4.9"
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 
 	#Prepare Linux sources
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make olddefconfig
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make prepare
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make modules_prepare
+	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make olddefconfig
+	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make prepare
+	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make modules_prepare
 
 	#Actually build kernel
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make -j$2 tegra-dtstree="../hardware/nvidia"
+	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make -j3 tegra-dtstree="../hardware/nvidia"
 
-	mkdir ${CURPWD}/Final/
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make modules_install INSTALL_MOD_PATH=${CURPWD}/Final/
-	cp arch/arm64/boot/Image ${CURPWD}/Final/
-	cp arch/arm64/boot/dts/tegra210-icosa.dtb ${CURPWD}/Final/
+	mkdir ${BUILD_DIR}/Final/
+	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
+
+	cp arch/arm64/boot/Image ${BUILD_DIR}/Final/
+	cp arch/arm64/boot/dts/tegra210-icosa.dtb ${BUILD_DIR}/Final/
 }
 
 usage() {
     echo "Usage: $0 [options]"
     echo "Options:"
 	echo " --compiler               Set Cross Compiler string"
-	echo " -b, --branch           	Kernel branch to use"
 	echo " -c, --cpus           	CPU core number used for build"
 	echo " -h, --help               Show this help text"
 	echo " -k, --keep               Keep older build files"
@@ -127,7 +117,7 @@ usage() {
 }
 
 # Parse arguments
-options=$(getopt -o "b:c::o:hk" -a -l branch:,compiler:,cpus::,output:,help,keep -n "$0" -- "$@")
+options=$(getopt -o "c::o:hk" -a -l compiler:,cpus::,output:,help,keep -n "$0" -- "$@")
 
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 
@@ -135,7 +125,6 @@ if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 eval set -- "${options}"
 while true; do
     case "$1" in
-	-b | --branch) branch=$2; shift; shift ;;
 	--compiler) CROSS_COMPILER_STRING=$2; shift; shift ;;
 	-c | --cpus) cpus=$2; shift; shift ;;
 	-k | --keep) keep=true; shift ;;
@@ -146,18 +135,12 @@ while true; do
     esac
 done
 
-if [[ -z ${cpus} ]]; then
-	cpus=$(($(nproc)/3+1))
-fi
-
-re='^[1-9]+$'
-if [[ ! ${cpus} =~ ${re} ]] || [[ -z ${CROSS_COMPILER_STRING} ]] || [[ ! -d ${out} ]]; then
+if [[ -z ${CROSS_COMPILER_STRING} ]] || [[ ! -d ${out} ]]; then
 	usage; exit 0
 fi
 
-CURPWD=$(realpath ${out})
+BUILD_DIR=$(realpath ${out})
 KERNEL_DIR="kernel_r32"
 
-[[ ${keep} != true ]] && rm -rf ${CURPWD}/* && Download
-
+[[ ${keep} != true ]] && rm -rf ${BUILD_DIR}/* && Prepare
 Build

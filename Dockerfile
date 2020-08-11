@@ -10,10 +10,10 @@ RUN tar xf gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu.tar.xz
 RUN mv gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu /opt
 ENV PATH=$PATH:/opt/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin
 
-COPY ./tegra21x /lib/firmware/tegra21x
+ADD tegra21x /lib/firmware/tegra21x
 ADD tegra21x_xusb_firmware /lib/firmware/
-COPY ./gm20b /lib/firmware/gm20b
-ADD ./l4t_kernel_prep_rel32.sh /
+ADD gm20b /lib/firmware/gm20b
+ADD l4t_kernel_prep_rel32.sh /
 RUN chmod +x /l4t_kernel_prep_rel32.sh
 
 VOLUME [ "/build" ]
