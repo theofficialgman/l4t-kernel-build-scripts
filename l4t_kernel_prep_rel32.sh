@@ -12,18 +12,17 @@ Prepare() {
 	wget -O "platform-tegra-t210-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common-lineage-16.0.tar.gz" > /dev/null
 
 	# Clone Switchroot Bits
-
 	git clone -b linux-3.0.2 "https://gitlab.com/switchroot/l4t-kernel-4.9.git" > /dev/null
 	git clone -b linux-3.0.1 "https://gitlab.com/switchroot/l4t-kernel-nvidia.git" > /dev/null
 	git clone -b linux-rel32 "https://gitlab.com/switchroot/l4t-platform-t210-switch.git" > /dev/null
 
-	#Handle Standard Kernel Bits
+	# Handle Standard Kernel Bits
 	echo "Extracting and Patching L4T-Switch 4.9"
 	mkdir -p ${KERNEL_DIR}
 	mv ./l4t-kernel-4.9 "${KERNEL_DIR}/kernel-4.9"
 	echo "Done"
 
-	#Handle Nvidia Kernel bits
+	# Handle Nvidia Kernel bits
 	echo "Extracting Nvidia Kernel Stuff"
 	mkdir -p ./kernel_r32/nvidia
 	mv ./l4t-kernel-nvidia*/* ./kernel_r32/nvidia
@@ -39,7 +38,7 @@ Prepare() {
 	rm -rf ./l4t-platform-t210-switch*
 	echo "Done"
 
-	#Extract and place nvidia bits
+	# Extract and place nvidia bits
 	echo "Extracting Nvidia GPU Kernel Bits"
 	mkdir -p ./kernel_r32/nvgpu
 	mkdir linux-nvgpu
@@ -97,13 +96,14 @@ Build() {
 	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make modules_prepare
 
 	#Actually build kernel
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make -j3 tegra-dtstree="../hardware/nvidia"
+	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make -j${cpus} tegra-dtstree="../hardware/nvidia"
 
 	mkdir ${BUILD_DIR}/Final/
 	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
 
 	cp arch/arm64/boot/Image ${BUILD_DIR}/Final/
 	cp arch/arm64/boot/dts/tegra210-icosa.dtb ${BUILD_DIR}/Final/
+	echo "Done"
 }
 
 usage() {
@@ -139,8 +139,14 @@ if [[ -z ${CROSS_COMPILER_STRING} ]] || [[ ! -d ${out} ]]; then
 	usage; exit 0
 fi
 
+# Set buld dir
 BUILD_DIR=$(realpath ${out})
+
+# Set kernel dirname
 KERNEL_DIR="kernel_r32"
 
+# Donwload and prepare bits
 [[ ${keep} != true ]] && rm -rf ${BUILD_DIR}/* && Prepare
-Build
+
+# Check if cpus have been set correctly and build
+[[ ${cpus} =~ ^[0-9]{,2}$ && ! ${cpus} > $(nproc) ]] && Build
