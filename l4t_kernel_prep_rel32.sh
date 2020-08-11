@@ -107,17 +107,16 @@ Build() {
 }
 
 usage() {
-    echo "Usage: $0 [options]"
+    echo "Usage: $0 [options] <dir>"
     echo "Options:"
-	echo " --compiler               Set Cross Compiler string"
-	echo " -c, --cpus           	CPU core number used for build"
-	echo " -h, --help               Show this help text"
-	echo " -k, --keep               Keep older build files"
-	echo " -o, --output             Specify output dir"
+        echo " --compiler               Set Cross Compiler string"
+        echo " -c, --cpus               CPU core number used for build"
+        echo " -h, --help               Show this help text"
+        echo " -k, --keep               Keep older build files"
 }
 
 # Parse arguments
-options=$(getopt -o "c::o:hk" -a -l compiler:,cpus::,output:,help,keep -n "$0" -- "$@")
+options=$(getopt -n $0 -o c:o:hk -a --long compiler:,cpus:,output:,help,keep -- "$@")
 
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 
@@ -125,15 +124,16 @@ if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 eval set -- "${options}"
 while true; do
     case "$1" in
-	--compiler) CROSS_COMPILER_STRING=$2; shift; shift ;;
-	-c | --cpus) cpus=$2; shift; shift ;;
-	-k | --keep) keep=true; shift ;;
-	-o | --output) out=$2; shift; shift ;;
-	?  | -h | --help) usage; exit 0 ;;
-	-- ) shift; break ;;
-	*  ) break ;;
+        --compiler) CROSS_COMPILER_STRING=$2; shift ; shift ;;
+        -c | --cpus) cpus=$2; shift ; shift ;;
+        -k | --keep) keep=true; shift ;;
+        ?  | -h | --help) usage; exit 0 ;;
+        -- ) shift; break ;;
     esac
 done
+
+# Store last arg as output dir
+out=$(realpath ${@:$#})
 
 if [[ -z ${CROSS_COMPILER_STRING} ]] || [[ ! -d ${out} ]]; then
 	usage; exit 0
