@@ -13,7 +13,9 @@ RUN git config core.sparseCheckout true
 RUN echo "t210/firmware/" >> .git/info/sparse-checkout
 RUN git pull origin lineage-17.0
 
-RUN cp -r proprietary_vendor_nvidia/t210/firmware/gm20b proprietary_vendor_nvidia/t210/firmware/tegra21x proprietary_vendor_nvidia/t210/firmware/xusb/* /usr/lib/firmware/
+RUN cp -r t210/firmware/gm20b /usr/lib/firmware
+RUN cp -r t210/firmware/tegra21x /usr/lib/firmware/
+RUN cp t210/firmware/xusb/* /usr/lib/firmware/
 
 ADD l4t_kernel_prep_rel32.sh /
 RUN chmod +x /l4t_kernel_prep_rel32.sh
