@@ -91,62 +91,57 @@ Build() {
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 
 	#Prepare Linux sources
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make olddefconfig
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make prepare
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING}  make modules_prepare
+	make olddefconfig
+	make prepare
+	make modules_prepare
 
 	#Actually build kernel
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make -j${cpus} tegra-dtstree="../hardware/nvidia"
+	make -j${CPUS} tegra-dtstree="../hardware/nvidia"
 
-	mkdir ${BUILD_DIR}/Final/
-	ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILER_STRING} make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
+	mkdir -p ${BUILD_DIR}/Final/
+	make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
 
 	cp arch/arm64/boot/Image ${BUILD_DIR}/Final/
 	cp arch/arm64/boot/dts/tegra210-icosa.dtb ${BUILD_DIR}/Final/
 	echo "Done"
 }
 
-usage() {
-    echo "Usage: $0 [options] <dir>"
-    echo "Options:"
-        echo " --compiler               Set Cross Compiler string"
-        echo " -c, --cpus               CPU core number used for build"
-        echo " -h, --help               Show this help text"
-        echo " -k, --keep               Keep older build files"
-}
-
-# Parse arguments
-options=$(getopt -n $0 -o c:o:hk -a --long compiler:,cpus:,output:,help,keep -- "$@")
-
-if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
-
-# Evaluate arguments
-eval set -- "${options}"
-while true; do
-    case "$1" in
-        --compiler) CROSS_COMPILER_STRING=$2; shift ; shift ;;
-        -c | --cpus) cpus=$2; shift ; shift ;;
-        -k | --keep) keep=true; shift ;;
-        ?  | -h | --help) usage; exit 0 ;;
-        -- ) shift; break ;;
-    esac
-done
-
 # Store last arg as output dir
-out=$(realpath ${@:$#})
-
-if [[ -z ${CROSS_COMPILER_STRING} ]] || [[ ! -d ${out} ]]; then
-	usage; exit 0
+if [[ ! -f /.dockerenv ]]; then
+	out=$(realpath ${@:$#})
+else
+	out="/build"
 fi
 
-# Set buld dir
+if [[ -z ${CROSS_COMPILE} ]]; then
+	echo "CROSS_COMPILE not set! Exiting.."
+	exit 1
+fi
+
+if [[ ! -d ${out} ]]; then
+	echo "Not a valid directory! Exiting.."
+	exit 1
+fi
+
+# Set build dir path
 BUILD_DIR=$(realpath ${out})
 
 # Set kernel dirname
 KERNEL_DIR="kernel_r32"
 
 # Donwload and prepare bits
-[[ ${keep} != true ]] && rm -rf ${BUILD_DIR}/* && Prepare
+if [[ ! -d "${BUILD_DIR}/${KERNEL_DIR}" ]]; then
+	Prepare
+else
+	echo ""${BUILD_DIR}/${KERNEL_DIR}" exists! Skipping file setup/download..."
+fi
 
 # Check if cpus have been set correctly and build
-[[ ${cpus} =~ ^[0-9]{,2}$ && ! ${cpus} > $(nproc) ]] && Build
+if [[ ${CPUS} > $(nproc) ]]; then
+	echo "${CPUS} exceeds the number of CPUS cores avalaible: $(nproc)"
+	exit 1
+fi
+
+if [[ ${CPUS} =~ ^[0-9]{,2}$ ]]; then
+	Build
+fi

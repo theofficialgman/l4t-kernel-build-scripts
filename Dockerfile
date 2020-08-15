@@ -1,20 +1,27 @@
-FROM ubuntu:19.10
+FROM ubuntu:focal
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN mkdir /build
 WORKDIR /build
 
-RUN apt update -y && apt upgrade -y && apt install -y wget tar make git patch xz-utils gcc bc xxd
-RUN wget https://releases.linaro.org/components/toolchain/binaries/7.3-2018.05/aarch64-linux-gnu/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu.tar.xz -P /build
-RUN tar xf gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu.tar.xz
-RUN mv gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu /opt
-ENV PATH=$PATH:/opt/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin
+RUN apt update -y && apt upgrade -y && apt install -y wget tar make git patch xz-utils gcc bc xxd gcc-aarch64-linux-gnu build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod
 
-ADD tegra21x /lib/firmware/tegra21x
-ADD tegra21x_xusb_firmware /lib/firmware/
-ADD gm20b /lib/firmware/gm20b
+RUN mkdir proprietary_vendor_nvidia/ && cd proprietary_vendor_nvidia/ 
+RUN git init
+RUN git remote add -f origin https://gitlab.incom.co/CM-Shield/proprietary_vendor_nvidia/
+RUN git config core.sparseCheckout true
+RUN echo "t210/firmware/" >> .git/info/sparse-checkout
+RUN git pull origin lineage-17.0
+
+RUN cp -r proprietary_vendor_nvidia/t210/firmware/gm20b proprietary_vendor_nvidia/t210/firmware/tegra21x proprietary_vendor_nvidia/t210/firmware/xusb/* /usr/lib/firmware/
+
 ADD l4t_kernel_prep_rel32.sh /
 RUN chmod +x /l4t_kernel_prep_rel32.sh
 
+ENV CROSS_COMPILE=aarch64-linux-gnu-
+ENV ARCH=arm64
+ARG CPUS=2
+ENV CPUS=${CPUS}
+
 VOLUME [ "/build" ]
-ENTRYPOINT [ "/l4t_kernel_prep_rel32.sh", "--compiler=aarch64-linux-gnu-", "--output=/build" ]
+ENTRYPOINT [ "/l4t_kernel_prep_rel32.sh" ]
