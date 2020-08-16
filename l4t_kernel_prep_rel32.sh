@@ -106,7 +106,7 @@ Build() {
 	echo "Done"
 }
 
-# Store last arg as output dir
+# Store last arg as output dir if not in Docker
 if [[ ! -f /.dockerenv ]]; then
 	out=$(realpath ${@:$#})
 else
@@ -137,11 +137,14 @@ else
 fi
 
 # Check if cpus have been set correctly and build
-if [[ ${CPUS} > $(nproc) ]]; then
-	echo "${CPUS} exceeds the number of CPUS cores avalaible: $(nproc)"
+if [[ ! ${CPUS} =~ ^[0-9]{,2}$ ]]; then
+	echo "${CPUS} cores out of range or invalid! Exiting..."
 	exit 1
 fi
 
-if [[ ${CPUS} =~ ^[0-9]{,2}$ ]]; then
-	Build
+if [[ ${CPUS} > $(nproc) ]]; then
+	echo "${CPUS} exceeds the number of CPUS cores avalaible: $(nproc)! Exiting..."
+	exit 1
 fi
+
+Build
