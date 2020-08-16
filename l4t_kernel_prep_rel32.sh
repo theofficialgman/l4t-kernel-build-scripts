@@ -91,15 +91,15 @@ Build() {
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 
 	#Prepare Linux sources
-	make olddefconfig
-	make prepare
-	make modules_prepare
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make olddefconfig
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make prepare
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules_prepare
 
 	#Actually build kernel
-	make -j${CPUS} tegra-dtstree="../hardware/nvidia"
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j${CPUS} tegra-dtstree="../hardware/nvidia"
 
 	mkdir -p ${BUILD_DIR}/Final/
-	make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
 
 	cp arch/arm64/boot/Image ${BUILD_DIR}/Final/
 	cp arch/arm64/boot/dts/tegra210-icosa.dtb ${BUILD_DIR}/Final/
