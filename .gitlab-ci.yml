@@ -1,4 +1,4 @@
-image: ubuntu:focal
+image: ubuntu:18.04
 
 build:
   stage: build
