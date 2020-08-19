@@ -1,6 +1,6 @@
 image: ubuntu:focal
 
-.prepare:
+build:
   stage: build
   before_script:
     - apt-get update
