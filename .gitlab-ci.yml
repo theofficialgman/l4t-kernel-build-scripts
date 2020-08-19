@@ -14,7 +14,7 @@ build:
     - cp -r t210/firmware/gm20b /lib/firmware
     - cp -r t210/firmware/tegra21x /lib/firmware/
     - cp t210/firmware/xusb/tegra21x_xusb_firmware /lib/firmware/
-    - mkdir -p /build
+    - cd ../ && mkdir -p /build
   script:
     - export CROSS_COMPILE=aarch64-linux-gnu- && export ARCH=arm64 && export CPUS=$(nproc)
     - ./l4t_kernel_prep_rel32.sh
