@@ -1,5 +1,21 @@
 image: ubuntu:18.04
 
+shell check:
+  image: koalaman/shellcheck-alpine:stable
+  stage: test
+  before_script:
+    - shellcheck --version
+  script:
+    - shellcheck ./*.sh
+
+shfmt:
+  image: mvdan/shfmt:v3.1.0-alpine
+  stage: test
+  before_script:
+    - shfmt -version
+  script:
+    - shfmt -ln posix -i 2 -ci -d ./*.sh # path to your shell scripts
+
 build:
   stage: build
   before_script:
