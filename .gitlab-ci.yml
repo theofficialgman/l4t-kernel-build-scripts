@@ -14,7 +14,7 @@ shfmt:
   before_script:
     - shfmt -version
   script:
-    - shfmt -ln posix -i 2 -ci -d ./*.sh # path to your shell scripts
+    - shfmt -ln bash -ci -d ./*.sh # path to your shell scripts
 
 build:
   stage: build
