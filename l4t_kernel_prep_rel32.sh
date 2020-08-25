@@ -1,7 +1,7 @@
 #!/bin/bash
 
 Prepare() {
-	cd ${BUILD_DIR}
+	cd "${BUILD_DIR}" || exit
 
 	# Download Nvidia Bits
 	echo "Downloading All Required Files, This may take a while..... Please Wait"
@@ -18,7 +18,7 @@ Prepare() {
 
 	# Handle Standard Kernel Bits
 	echo "Extracting and Patching L4T-Switch 4.9"
-	mkdir -p ${KERNEL_DIR}
+	mkdir -p "${KERNEL_DIR}"
 	mv ./l4t-kernel-4.9 "${KERNEL_DIR}/kernel-4.9"
 	echo "Done"
 
@@ -32,8 +32,8 @@ Prepare() {
 	#Handle Switchroot DTS files
 	echo "Extracting DTS stuff"
 	mkdir -p ./kernel_r32/hardware/nvidia/platform/t210/icosa
-	cd l4t-platform-t210-switch
-	cd ${BUILD_DIR}
+	cd l4t-platform-t210-switch || exit
+	cd "${BUILD_DIR}" || exit
 	mv ./l4t-platform-t210-switch*/* ./kernel_r32/hardware/nvidia/platform/t210/icosa/
 	rm -rf ./l4t-platform-t210-switch*
 	echo "Done"
@@ -87,8 +87,11 @@ Prepare() {
 
 Build() {
 	echo "Preparing Source and Creating Defconfig"
-	cd "${BUILD_DIR}/${KERNEL_DIR}/kernel-4.9"
+	cd "${BUILD_DIR}/${KERNEL_DIR}/kernel-4.9" || exit
 	cp arch/arm64/configs/tegra_linux_defconfig .config
+
+	export KBUILD_BUILD_USER=user
+	export KBUILD_BUILD_HOST=custombuild
 
 	#Prepare Linux sources
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make olddefconfig
@@ -96,29 +99,23 @@ Build() {
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules_prepare
 
 	#Actually build kernel
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j${CPUS} tegra-dtstree="../hardware/nvidia"
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" tegra-dtstree="../hardware/nvidia"
 
-	mkdir -p ${BUILD_DIR}/Final/
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules_install INSTALL_MOD_PATH=${BUILD_DIR}/Final/
+	mkdir -p "${BUILD_DIR}"/Final/
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules_install INSTALL_MOD_PATH="${BUILD_DIR}"/Final/
 
-	cp arch/arm64/boot/Image ${BUILD_DIR}/Final/
-	cp arch/arm64/boot/dts/tegra210-icosa.dtb ${BUILD_DIR}/Final/
+	cp arch/arm64/boot/Image "${BUILD_DIR}"/Final/
+	cp arch/arm64/boot/dts/tegra210-icosa.dtb "${BUILD_DIR}"/Final/
 	echo "Done"
 }
 
 # Store last arg as output dir if not in Docker
-if [[ ! -f /.dockerenv ]]; then
-	out=$(realpath ${@:$#})
-else
-	out="/build"
-fi
+out=$(realpath "${@:$#}")
 
 if [[ -z ${CROSS_COMPILE} ]]; then
 	echo "CROSS_COMPILE not set! Exiting.."
 	exit 1
-fi
-
-if [[ ! -d ${out} ]]; then
+elif [[ ! -d ${out} ]]; then
 	echo "Not a valid directory! Exiting.."
 	exit 1
 fi
@@ -130,21 +127,19 @@ BUILD_DIR=$(realpath ${out})
 KERNEL_DIR="kernel_r32"
 
 # Donwload and prepare bits
-if [[ ! -d "${BUILD_DIR}/${KERNEL_DIR}" ]]; then
+if [[ ! -d "${BUILD_DIR}/${KERNEL_DIR}=" ]]; then
 	Prepare
 else
-	echo ""${BUILD_DIR}/${KERNEL_DIR}" exists! Skipping file setup/download..."
+	echo "${BUILD_DIR}"/${KERNEL_DIR}" exists! Skipping file setup/download..."
 fi
 
 # Check if cpus have been set correctly and build
 if [[ ! ${CPUS} =~ ^[0-9]{,2}$ ]]; then
-	echo "${CPUS} cores out of range or invalid! Exiting..."
+	echo "${CPUS} cores out of range, or invalid! Exiting..."
 	exit 1
-fi
-
-if [[ ${CPUS} > $(nproc) ]]; then
+elif [[ ${CPUS} > $(nproc) ]]; then
 	echo "${CPUS} exceeds the number of CPUS cores avalaible: $(nproc)! Exiting..."
 	exit 1
+else
+	Build
 fi
-
-Build

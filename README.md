@@ -28,5 +28,5 @@ export CROSS_COMPILE=aarch64-linux-gnu-
 
 ```sh
 mkdir -p $(pwd)/out/
-docker run --rm -it -e CPUS=4 -v $(pwd)/out:/build alizkan/l4t-kernel:latest
+docker run --rm -it -e CPUS=4 -v $(pwd)/out:/out alizkan/l4t-kernel:latest
 ```

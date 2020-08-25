@@ -33,7 +33,7 @@ build:
     - cd ../ && mkdir -p /build
   script:
     - export CROSS_COMPILE=aarch64-linux-gnu- && export ARCH=arm64 && export CPUS=$(nproc)
-    - ./l4t_kernel_prep_rel32.sh
+    - ./l4t_kernel_prep_rel32.sh /build
   artifacts:
     paths:
       - /build/Final/Image
