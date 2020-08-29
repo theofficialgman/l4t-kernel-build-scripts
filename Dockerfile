@@ -19,7 +19,7 @@ RUN cp -r t210/firmware/gm20b /lib/firmware
 RUN cp -r t210/firmware/tegra21x /lib/firmware/
 RUN cp t210/firmware/xusb/tegra21x_xusb_firmware /lib/firmware/
 
-ADD l4t_kernel_prep_rel32.sh /
+ADD l4t_kernel_prep_rel32.sh KERNEL_BRANCH /
 RUN chmod +x /l4t_kernel_prep_rel32.sh
 
 ENV CROSS_COMPILE=aarch64-linux-gnu-
@@ -28,4 +28,5 @@ ARG CPUS=2
 ENV CPUS=${CPUS}
 
 VOLUME /out
+WORKDIR /build
 ENTRYPOINT /l4t_kernel_prep_rel32.sh /out/ && tar czf /out/Final/modules.tar.gz /out/Final/lib

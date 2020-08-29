@@ -12,9 +12,9 @@ Prepare() {
 	wget -O "platform-tegra-t210-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common-lineage-16.0.tar.gz" >/dev/null
 
 	# Clone Switchroot Bits
-	git clone -b linux-3.0.2 "https://gitlab.com/switchroot/l4t-kernel-4.9.git" >/dev/null
-	git clone -b linux-3.0.1 "https://gitlab.com/switchroot/l4t-kernel-nvidia.git" >/dev/null
-	git clone -b linux-rel32 "https://gitlab.com/switchroot/l4t-platform-t210-switch.git" >/dev/null
+	git clone -b ${KERNEL_VER} "https://gitlab.com/switchroot/l4t-kernel-4.9.git" >/dev/null
+	git clone -b ${NVIDIA_VER} "https://gitlab.com/switchroot/l4t-kernel-nvidia.git" >/dev/null
+	git clone -b ${DTS_VER} "https://gitlab.com/switchroot/l4t-platform-t210-switch.git" >/dev/null
 
 	# Handle Standard Kernel Bits
 	echo "Extracting and Patching L4T-Switch 4.9"
@@ -110,6 +110,9 @@ Build() {
 # Retrieve last argument as output directory
 BUILD_DIR="$(realpath "${@:$#}")"
 KERNEL_DIR="${BUILD_DIR}/kernel_r32"
+
+# Retrieve KERNEL_BRANCH variables corresponding to the build file branch to checkout
+set -a && . ./KERNEL_BRANCH && set +a
 
 [[ -z "${CROSS_COMPILE}" ]] && \
 	echo "CROSS_COMPILE not set! Exiting.." && exit 1

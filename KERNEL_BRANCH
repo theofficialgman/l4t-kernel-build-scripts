@@ -1,0 +1,6 @@
+# Kernel repo: https://gitlab.com/switchroot/l4t-kernel-4.9
+KERNEL_VER="linux-3.0.2"
+# Kernel_nvidia repository: https://gitlab.com/switchroot/l4t-kernel-nvidia
+NVIDIA_VER="linux-3.0.1"
+# DTS repository: https://gitlab.com/switchroot/l4t-platform-t210-switch
+DTS_VER="linux-rel32"
