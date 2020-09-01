@@ -21,7 +21,7 @@ RUN cp t210/firmware/xusb/tegra21x_xusb_firmware /lib/firmware/
 
 ADD . /build
 RUN ls /build
-RUN chmod +x /l4t_kernel_prep_rel32.sh
+RUN chmod +x /build/l4t_kernel_prep_rel32.sh
 
 ENV CROSS_COMPILE=aarch64-linux-gnu-
 ENV ARCH=arm64
