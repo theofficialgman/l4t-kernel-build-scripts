@@ -20,10 +20,7 @@ You can also change the variables set in the file KERNEL_BRANCH to checkout diff
 
 ```sh
 mkdir -p $(pwd)/out/
-export ARCH=arm64
-export CPUS=4
-export CROSS_COMPILE=aarch64-linux-gnu-
-./l4t_kernel_prep_rel32.sh out/
+ARCH=arm64 CPUS=4 CROSS_COMPILE=aarch64-linux-gnu- ./l4t_kernel_prep_rel32.sh out/
 ```
 
 ## Building using Docker
