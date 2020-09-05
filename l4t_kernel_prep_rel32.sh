@@ -124,9 +124,10 @@ Build() {
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" modules_install INSTALL_MOD_PATH="${BUILD_DIR}/Final/"
 
 	find "${BUILD_DIR}/Final/" -exec chmod 777 {} \;
-	create_update_modules "${BUILD_DIR}"/Final/lib modules.tar.gz
+	create_update_modules "${BUILD_DIR}"/Final/lib "${BUILD_DIR}"/Final/modules.tar.gz
 	cp arch/arm64/boot/Image "${BUILD_DIR}"/Final/
 	cp arch/arm64/boot/dts/tegra210-icosa.dtb "${BUILD_DIR}"/Final/
+	rm -rf "${BUILD_DIR}"/Final/lib
 	echo "Done"
 }
 
