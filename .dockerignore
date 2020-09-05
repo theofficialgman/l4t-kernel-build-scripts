@@ -1,5 +1,3 @@
 **/*
-!**/l4t_kernel_prep_rel32.sh
-!**/tegra21x
-!**/tegra21x_xusb_firmware
-!**/gm20b
+!KERNEL_VERSIONS
+!l4t_kernel_prep_rel32.sh

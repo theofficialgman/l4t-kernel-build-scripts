@@ -9,20 +9,6 @@ RUN /bin/ash -c 'set -ex && \
 	apt install -y gcc-aarch64-linux-gnu; \
     fi'
 
-RUN mkdir /proprietary_vendor_nvidia/ && cd /proprietary_vendor_nvidia/ 
-RUN git init
-RUN git remote add -f origin https://gitlab.incom.co/CM-Shield/proprietary_vendor_nvidia/
-RUN git config core.sparseCheckout true
-RUN echo "t210/firmware/" >> .git/info/sparse-checkout
-RUN git pull origin lineage-17.0
-RUN cp -r t210/firmware/gm20b /lib/firmware
-RUN cp -r t210/firmware/tegra21x /lib/firmware/
-RUN cp t210/firmware/xusb/tegra21x_xusb_firmware /lib/firmware/
-
-ADD . /build
-RUN ls /build
-RUN chmod +x /build/l4t_kernel_prep_rel32.sh
-
 ENV CROSS_COMPILE=aarch64-linux-gnu-
 ENV ARCH=arm64
 ARG CPUS=2
@@ -30,4 +16,7 @@ ENV CPUS=${CPUS}
 
 VOLUME /out
 WORKDIR /build
-ENTRYPOINT /build/l4t_kernel_prep_rel32.sh /out/ && cd /out/Final && tar czf modules.tar.gz lib
+
+COPY . /build
+RUN chmod +x /build/l4t_kernel_prep_rel32.sh
+ENTRYPOINT /build/l4t_kernel_prep_rel32.sh /out/
