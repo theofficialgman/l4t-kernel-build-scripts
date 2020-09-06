@@ -16,7 +16,7 @@ Prepare_firmware()
 	mkdir -p "${firmware_dir}"
 	wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
 	tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2 lib/firmware/
+	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
 	mv "${BUILD_DIR}"/lib/firmware/* "${firmware_dir}"
 }
 
@@ -151,7 +151,7 @@ set -a && . "./KERNEL_VERSIONS" && set +a
 cd "${BUILD_DIR}" || exit
 
 # Download and prepare bits
-if [[ ! -e "${firmware_dir}" ]]; then Prepare_firmware;
+if [[ ! -e "${firmware_dir}" && -z "$(ls "${firmware_dir}")" ]]; then Prepare_firmware;
 	else echo "${firmware_dir} exists! Skipping firmware setup/download..."; fi
 
 if [[ ! -e "${KERNEL_DIR}" ]]; then Prepare;
