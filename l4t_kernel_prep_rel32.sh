@@ -13,7 +13,7 @@ create_update_modules()
 Prepare_firmware()
 {
 	# Download and extract firmware
-	mkdir -p "${firmware_dir}"
+	mkdir -p "${firmware_dir}" ${BUILD_DIR}/update
 	wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
 	tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
 	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
@@ -105,7 +105,7 @@ Prepare()
 Build() {
 	echo "Preparing Source and Creating Defconfig"
 	cd "${KERNEL_DIR}/kernel-4.9" || exit
-	mkdir -p "${BUILD_DIR}/Final/"
+	mkdir -p "${BUILD_DIR}/"
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 	sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR=.*/CONFIG_EXTRA_FIRMWARE_DIR="..\/firmware\/"/g' .config
 
@@ -121,13 +121,19 @@ Build() {
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" tegra-dtstree="../hardware/nvidia"
 
 	# Install kernel modules
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" modules_install INSTALL_MOD_PATH="${BUILD_DIR}/Final/"
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" modules_install INSTALL_MOD_PATH="${BUILD_DIR}/modules/"
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" headers_install INSTALL_HDR_PATH="${BUILD_DIR}/update/usr"
 
-	find "${BUILD_DIR}/Final/" -exec chmod 777 {} \;
-	create_update_modules "${BUILD_DIR}"/Final/lib "${BUILD_DIR}"/Final/modules.tar.gz
-	cp arch/arm64/boot/Image "${BUILD_DIR}"/Final/
-	cp arch/arm64/boot/dts/tegra210-icosa.dtb "${BUILD_DIR}"/Final/
-	rm -rf "${BUILD_DIR}"/Final/lib
+	rm ${BUILD_DIR}/modules/lib/modules/4.9.140+/build
+	rm ${BUILD_DIR}/modules/lib/modules/4.9.140+/source
+
+	find ${BUILD_DIR}/update/usr/include -name *.install* -exec rm {} \;
+	find ${BUILD_DIR}/modules -exec chmod 777 {} \;
+	create_update_modules ${BUILD_DIR}/modules/ ${BUILD_DIR}/modules.tar.gz
+	create_update_modules ${BUILD_DIR}/update/ ${BUILD_DIR}/update.tar.gz
+	cp arch/arm64/boot/Image "${BUILD_DIR}"
+	cp arch/arm64/boot/dts/tegra210-icosa.dtb "${BUILD_DIR}"
+	rm -rf "${BUILD_DIR}"/modules "${BUILD_DIR}"/update
 	echo "Done"
 }
 
@@ -154,7 +160,7 @@ cd "${BUILD_DIR}" || exit
 if [[ ! -e "${firmware_dir}" && -z "$(ls "${firmware_dir}")" ]]; then Prepare_firmware;
 	else echo "${firmware_dir} exists! Skipping firmware setup/download..."; fi
 
-if [[ ! -e "${KERNEL_DIR}" ]]; then Prepare;
+if [[ ! -e "${KERNEL_DIR}/kernel-4.9"  && -z "$(ls "${KERNEL_DIR}/kernel-4.9")" ]]; then Prepare;
 	else echo "${KERNEL_DIR} exists! Skipping kernel files setup/download..."; fi
 
 Build
