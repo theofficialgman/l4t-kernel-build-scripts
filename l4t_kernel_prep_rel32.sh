@@ -145,7 +145,10 @@ firmware_dir="${KERNEL_DIR}/firmware"
 # Retrieve KERNEL_BRANCH variables corresponding to the build file branch to checkout
 set -a && . "./KERNEL_VERSIONS" && set +a
 
-[[ -z "${CROSS_COMPILE}" ]] && \
+[[ -z ${ARCH} && $(uname -m) != ${ARCH} ]] && \
+	echo "Target build ARCH not set! Exiting.." && exit 1
+
+[[ -z "${CROSS_COMPILE}" && $(uname -m) != ${ARCH} ]] && \
 	echo "CROSS_COMPILE not set! Exiting.." && exit 1
 
 [[ ! -d "${BUILD_DIR}" ]] && \

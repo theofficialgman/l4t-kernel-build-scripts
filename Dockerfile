@@ -1,6 +1,8 @@
 FROM ubuntu:18.04
 ARG DEBIAN_FRONTEND=noninteractive
 
+RUN chmod 1777 /tmp
+
 RUN apt update -y && apt install -y wget tar make git patch xz-utils gcc bc xxd build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod ash
 RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
