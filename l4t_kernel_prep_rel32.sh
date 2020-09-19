@@ -18,6 +18,7 @@ Prepare_firmware()
 	tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
 	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
 	mv "${BUILD_DIR}"/lib/firmware/* "${firmware_dir}"
+	rm -rf Linux_for_Tegra usr/ lib/ etc/ var/ Tegra210_Linux_R32.4.3_aarch64.tbz2
 }
 
 Prepare()
