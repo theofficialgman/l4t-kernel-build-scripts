@@ -25,11 +25,11 @@ Prepare()
 {
 	# Download Nvidia Bits
 	echo "Downloading All Required Files, This may take a while..... Please Wait"
-	wget -O "linux-nvgpu-r32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_kernel_nvgpu-lineage-16.0.tar.gz" >/dev/null
-	wget -O "soc-tegra-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_tegra/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_tegra-lineage-16.0.tar.gz" >/dev/null
-	wget -O "soc-tegra-t210-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_t210/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_t210-lineage-16.0.tar.gz" >/dev/null
-	wget -O "platform-tegra-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_tegra_common/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_tegra_common-lineage-16.0.tar.gz" >/dev/null
-	wget -O "platform-tegra-t210-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common/-/archive/lineage-16.0/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common-lineage-16.0.tar.gz" >/dev/null
+	wget -O "linux-nvgpu-r32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu/-/archive/${LINEAGE_VER}/android_kernel_nvidia_linux-4.9_kernel_nvgpu-${LINEAGE_VER}.tar.gz" >/dev/null
+	wget -O "soc-tegra-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_tegra/-/archive/${LINEAGE_VER}/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_tegra-${LINEAGE_VER}.tar.gz" >/dev/null
+	wget -O "soc-tegra-t210-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_t210/-/archive/${LINEAGE_VER}/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_t210-${LINEAGE_VER}.tar.gz" >/dev/null
+	wget -O "platform-tegra-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_tegra_common/-/archive/${LINEAGE_VER}/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_tegra_common-${LINEAGE_VER}.tar.gz" >/dev/null
+	wget -O "platform-tegra-t210-common-rel32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common/-/archive/${LINEAGE_VER}/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common-${LINEAGE_VER}.tar.gz" >/dev/null
 
 	# Clone Switchroot Bits
 	git clone -b "${KERNEL_VER}" "https://gitlab.com/switchroot/l4t-kernel-4.9.git" >/dev/null
@@ -161,10 +161,10 @@ set -a && . "./KERNEL_VERSIONS" && set +a
 cd "${BUILD_DIR}" || exit
 
 # Download and prepare bits
-if [[ ! -e "${firmware_dir}" && -z "$(ls "${firmware_dir}")" ]]; then Prepare_firmware;
+if [[ ! -e "${firmware_dir}" && -z "$(ls "${firmware_dir}" 2>/dev/null)" ]]; then Prepare_firmware;
 	else echo "${firmware_dir} exists! Skipping firmware setup/download..."; fi
 
-if [[ ! -e "${KERNEL_DIR}/kernel-4.9"  && -z "$(ls "${KERNEL_DIR}/kernel-4.9")" ]]; then Prepare;
+if [[ ! -e "${KERNEL_DIR}/kernel-4.9"  && -z "$(ls "${KERNEL_DIR}/kernel-4.9" 2>/dev/null)" ]]; then Prepare;
 	else echo "${KERNEL_DIR} exists! Skipping kernel files setup/download..."; fi
 
 Build

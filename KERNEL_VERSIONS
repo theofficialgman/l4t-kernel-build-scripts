@@ -4,3 +4,5 @@ KERNEL_VER="linux-3.2.0"
 NVIDIA_VER="linux-3.2.0"
 # DTS repository: https://gitlab.com/switchroot/l4t-platform-t210-switch
 DTS_VER="linux-rel32"
+# CM_Shield repository: https://gitlab.incom.co/CM-Shield/
+LINEAGE_VER="lineage-16.0"
