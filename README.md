@@ -25,11 +25,34 @@ ARCH=arm64 CPUS=4 CROSS_COMPILE=aarch64-linux-gnu- ./l4t_kernel_prep_rel32.sh ou
 
 ## Building using Docker
 
+Download/Pull the docker image :
+```sh
+docker pull alizkan/l4t-kernel:latest
+```
+
+Create a directory to store the build files and downloaded files :
 ```sh
 mkdir -p $(pwd)/out/
+```
+
+Run the container to trigger the actuall build of the kernel :
+
+```sh
 docker run --rm -it -e CPUS=4 -v $(pwd)/out:/out alizkan/l4t-kernel:latest
 ```
 
+THe build files will be stored in the directory you gave as a volume to the docker container (`$(pwd)/out/` here).
+Here's the files you should get after a successfull build :
+```txt
+Image
+tegra210-icosa.dtb
+modules.tar.gz
+update.tar.gz
+```
+
+The rest of the files and directory are kept for later builds.
+
+### Docker tips
 *You can override the workdir used in the docker, to use your own changes, without rebuilding the image by adding this repository directory as a volume to the docker command above.*
 
 ```sh

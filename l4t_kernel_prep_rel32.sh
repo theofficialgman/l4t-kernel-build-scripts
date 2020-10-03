@@ -130,7 +130,7 @@ Build() {
 
 	find ${BUILD_DIR}/update/usr/include -name *.install* -exec rm {} \;
 	find ${BUILD_DIR}/update/usr/include -exec chmod 777 {} \;
-	create_update_modules ${BUILD_DIR}/modules/ ${BUILD_DIR}/modules.tar.gz
+	create_update_modules ${BUILD_DIR}/modules/lib/ ${BUILD_DIR}/modules.tar.gz
 	create_update_modules ${BUILD_DIR}/update/ ${BUILD_DIR}/update.tar.gz
 	cp arch/arm64/boot/Image "${BUILD_DIR}"
 	cp arch/arm64/boot/dts/tegra210-icosa.dtb "${BUILD_DIR}"
