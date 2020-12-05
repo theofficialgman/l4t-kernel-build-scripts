@@ -4,12 +4,13 @@ build:
   before_script:
     - apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get -qq -y install wget tar make git patch xz-utils gcc bc xxd gcc-aarch64-linux-gnu build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod
+    - mkdir ./build
   script:
     - export CROSS_COMPILE=aarch64-linux-gnu- && export ARCH=arm64 && export CPUS=$(nproc)
-    - ./l4t_kernel_prep_rel32.sh /build
+    - ./l4t_kernel_prep_rel32.sh ./build
   artifacts:
     paths:
-      - /build/Image
-      - /build/tegra210-icosa.dtb
-      - /build/modules.tar.gz
-      - /build/update.tar.gz
+      - ./build/Image
+      - ./build/tegra210-icosa.dtb
+      - ./build/modules.tar.gz
+      - ./build/update.tar.gz
