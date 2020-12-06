@@ -1,7 +1,7 @@
 docker-build:
   # Official docker image.
   image: docker:latest
-  stage: dependency_build
+  stage: docker-build
   services:
     - docker:dind
   before_script:
