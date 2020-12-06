@@ -38,7 +38,7 @@ mkdir -p $(pwd)/out/
 Run the container to trigger the actuall build of the kernel :
 
 ```sh
-docker run --rm -it -e CPUS=4 -v $(pwd)/out:/out alizkan/l4t-kernel:latest
+docker run --rm -it -e CPUS=4 -v $(pwd)/out:/out registry.gitlab.com/switchroot/kernel/l4t-kernel-build-scripts:latest
 ```
 
 THe build files will be stored in the directory you gave as a volume to the docker container (`$(pwd)/out/` here).
