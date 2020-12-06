@@ -155,9 +155,6 @@ set -a && . "./KERNEL_VERSIONS" && set +a
 [[ ! -d "${BUILD_DIR}" ]] && \
 	echo "Not a valid directory! Exiting.." && exit 1
 
-[[ "${CPUS}" > $(nproc)  ]] && \
-	echo "${CPUS} cores out of range or invalid, CPUS cores avalaible: $(nproc) ! Exiting..." && exit 1
-
 cd "${BUILD_DIR}" || exit
 
 # Download and prepare bits
