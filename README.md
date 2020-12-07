@@ -25,17 +25,7 @@ ARCH=arm64 CPUS=4 CROSS_COMPILE=aarch64-linux-gnu- ./l4t_kernel_prep_rel32.sh ou
 
 ## Building using Docker
 
-Download/Pull the docker image :
-```sh
-docker pull alizkan/l4t-kernel:latest
-```
-
-Create a directory to store the build files and downloaded files :
-```sh
-mkdir -p $(pwd)/out/
-```
-
-Run the container to trigger the actuall build of the kernel :
+Run the container to trigger the actual build of the kernel, it will create the `out` dir if it doesn't exist and pull the docker image  if it cannot be found :
 
 ```sh
 docker run --rm -it -e CPUS=4 -v $(pwd)/out:/out registry.gitlab.com/switchroot/kernel/l4t-kernel-build-scripts:latest
