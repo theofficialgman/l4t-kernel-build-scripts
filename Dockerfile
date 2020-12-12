@@ -19,6 +19,6 @@ ENV CPUS=${CPUS}
 VOLUME /out
 WORKDIR /build
 
-COPY . /build
+COPY . /build/
 RUN chmod +x /build/l4t_kernel_prep_rel32.sh
 ENTRYPOINT /build/l4t_kernel_prep_rel32.sh /out/

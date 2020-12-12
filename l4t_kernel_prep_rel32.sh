@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+# Kernel repo: https://gitlab.com/switchroot/l4t-kernel-4.9
+KERNEL_VER="linux-rel32-rebase"
+# Kernel_nvidia repository: https://gitlab.com/switchroot/l4t-kernel-nvidia
+NVIDIA_VER="linux-rel32-rebase"
+# DTS repository: https://gitlab.com/switchroot/l4t-platform-t210-switch
+DTS_VER="linux-rel32"
+# CM_Shield repository: https://gitlab.incom.co/CM-Shield/
+LINEAGE_VER="lineage-17.1"
+
 create_update_modules()
 {
     chown -R root:root "$1"
@@ -103,6 +112,13 @@ Prepare()
 	echo "Done"
 }
 
+Patch() {
+	cd "${KERNEL_DIR}" || exit
+	for patch in `ls ${PATCH_DIR}`; do
+		patch -p1 < "${PATCH_DIR}/${patch}" || echo -e "\nPatch $patch failed"
+	done
+}
+
 Build() {
 	echo "Preparing Source and Creating Defconfig"
 	cd "${KERNEL_DIR}/kernel-4.9" || exit
@@ -142,9 +158,7 @@ Build() {
 BUILD_DIR="$(realpath "${@:$#}")"
 KERNEL_DIR="${BUILD_DIR}/kernel_r32"
 firmware_dir="${KERNEL_DIR}/firmware"
-
-# Retrieve KERNEL_BRANCH variables corresponding to the build file branch to checkout
-set -a && . "./KERNEL_VERSIONS" && set +a
+PATCH_DIR="$(dirname "${BASH_SOURCE[0]}")/patch/"
 
 [[ -z ${ARCH} ]] && \
 	echo "Target build ARCH not set! Exiting.." && exit 1
@@ -164,4 +178,5 @@ if [[ ! -e "${firmware_dir}" && -z "$(ls "${firmware_dir}" 2>/dev/null)" ]]; the
 if [[ ! -e "${KERNEL_DIR}/kernel-4.9"  && -z "$(ls "${KERNEL_DIR}/kernel-4.9" 2>/dev/null)" ]]; then Prepare;
 	else echo "${KERNEL_DIR} exists! Skipping kernel files setup/download..."; fi
 
+Patch
 Build
