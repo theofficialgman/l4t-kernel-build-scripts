@@ -2,36 +2,40 @@
 set -e
 
 # Kernel repo: https://gitlab.com/switchroot/l4t-kernel-4.9
-KERNEL_VER="linux-rel32-rebase"
+KERNEL_VER=${KERNEL_VER:-"linux-rel32-rebase"}
+
 # Kernel_nvidia repository: https://gitlab.com/switchroot/l4t-kernel-nvidia
-NVIDIA_VER="linux-rel32-rebase"
+NVIDIA_VER=${NVIDIA_VER:-"linux-rel32-rebase"}
+
 # DTS repository: https://gitlab.com/switchroot/l4t-platform-t210-switch
-DTS_VER="linux-rel32"
+DTS_VER=${DTS_VER:-"linux-rel32"}
+
 # CM_Shield repository: https://gitlab.incom.co/CM-Shield/
-LINEAGE_VER="lineage-17.1"
+LINEAGE_VER=${LINEAGE_VER:-"lineage-17.1"}
+
+# Build variables
+export KBUILD_BUILD_USER=${KBUILD_BUILD_USER:-"user"}
+export KBUILD_BUILD_HOST=${KBUILD_BUILD_HOST:-"custombuild"}
+export ARCH=${ARCH:-"arm64"}
+export CROSS_COMPILE=${CROSS_COMPILE:-"aarch64-linux-gnu-"}
+export CPUS=${CPUS:-$(($(nproc) - 1))}
+
+# Retrieve last argument as output directory
+BUILD_DIR="$(realpath "${@:$#}")"
+KERNEL_DIR="${BUILD_DIR}/kernel_r32"
+FW_DIR="${KERNEL_DIR}/firmware"
+PATCH_DIR="$(dirname "${BASH_SOURCE[0]}")/patch/"
 
 create_update_modules()
 {
-    chown -R root:root "$1"
-    find "$1" -type d -exec chmod 755 {} \;
-    find "$1" -type f -exec chmod 644 {} \;
-    find "$1" -name "*.sh" -type f -exec chmod 755 {} \;
-    tar -C "$1" -czvpf "$2" .
+	find "$1" -type d -exec chmod 755 {} \;
+	find "$1" -type f -exec chmod 644 {} \;
+	find "$1" -name "*.sh" -type f -exec chmod 755 {} \;
+	fakeroot chown -R root:root "$1"
+	tar -C "$1" -czvpf "$2" .
 }
 
-Prepare_firmware()
-{
-	# Download and extract firmware
-	mkdir -p "${firmware_dir}" ${BUILD_DIR}/update ${BUILD_DIR}/modules
-	wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
-	tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-	mv "${BUILD_DIR}"/lib/firmware/* "${firmware_dir}"
-	rm -rf Linux_for_Tegra usr/ lib/ etc/ var/ Tegra210_Linux_R32.4.3_aarch64.tbz2
-}
-
-Prepare()
-{
+Prepare() {
 	# Download Nvidia Bits
 	echo "Downloading All Required Files, This may take a while..... Please Wait"
 	wget -O "linux-nvgpu-r32.2.2.tar.gz" "https://gitlab.incom.co/CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu/-/archive/${LINEAGE_VER}/android_kernel_nvidia_linux-4.9_kernel_nvgpu-${LINEAGE_VER}.tar.gz" >/dev/null
@@ -47,25 +51,20 @@ Prepare()
 
 	# Handle Standard Kernel Bits
 	echo "Extracting and Patching L4T-Switch 4.9"
-	mkdir -p "${KERNEL_DIR}"
-	mv ./l4t-kernel-4.9 "${KERNEL_DIR}/kernel-4.9"
+	mkdir -p "${KERNEL_DIR}/hardware/nvidia/platform/t210/"
+	mv l4t-kernel-4.9 "${KERNEL_DIR}/kernel-4.9"
 	echo "Done"
 
 	# Handle Nvidia Kernel bits
 	echo "Extracting Nvidia Kernel Stuff"
-	mkdir -p "${KERNEL_DIR}"/nvidia
-	mv ./l4t-kernel-nvidia*/* "${KERNEL_DIR}"/nvidia
-	rm -rf ./l4t-kernel-nvidia*
+	mv l4t-kernel-nvidia "${KERNEL_DIR}/nvidia"
 	echo "Done"
 
 	#Handle Switchroot DTS files
 	echo "Extracting DTS stuff"
-	mkdir -p "${KERNEL_DIR}"/hardware/nvidia/platform/t210/icosa
-	mv ./l4t-platform-t210-switch*/* "${KERNEL_DIR}"/hardware/nvidia/platform/t210/icosa/
-	rm -rf ./l4t-platform-t210-switch*
+	mv l4t-platform-t210-switch/ "${KERNEL_DIR}/hardware/nvidia/platform/t210/icosa/"
 	echo "Done"
 
-	# Extract and place nvidia bits
 	echo "Extracting Nvidia GPU Kernel Bits"
 	mkdir -p "${KERNEL_DIR}"/nvgpu
 	mkdir linux-nvgpu
@@ -110,73 +109,89 @@ Prepare()
 	mv ./common-t210/* "${KERNEL_DIR}"/hardware/nvidia/platform/t210/common/
 	rm -r common-t210
 	echo "Done"
+
+	echo "Download and extract tegra firmware"
+	mkdir -p "${FW_DIR}" ${BUILD_DIR}/update ${BUILD_DIR}/modules
+	wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
+	tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
+	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
+	mv "${BUILD_DIR}"/lib/firmware/* "${FW_DIR}"
+	rm -rf Linux_for_Tegra usr/ lib/ etc/ var/ Tegra210_Linux_R32.4.3_aarch64.tbz2
+	echo "Done"
 }
 
 Patch() {
-	cd "${KERNEL_DIR}" || exit
-	for patch in `ls ${PATCH_DIR}`; do
-		patch -p1 < "${PATCH_DIR}/${patch}" || echo -e "\nPatch $patch failed"
-	done
+	if [[ ${PATCH} == "true" ]]; then
+		cd "${KERNEL_DIR}"
+		echo "Applying patches"
+		for patch in `ls ${PATCH_DIR}`; do
+			patch -p1 < "${PATCH_DIR}/${patch}" || echo -e "\nPatch $patch failed"
+		done
+	fi
 }
 
 Build() {
 	echo "Preparing Source and Creating Defconfig"
-	cd "${KERNEL_DIR}/kernel-4.9" || exit
-	mkdir -p "${BUILD_DIR}/"
+
+	mkdir -p "${BUILD_DIR}"
+	
+	cd "${KERNEL_DIR}/nvidia"
+	git checkout ${NVIDIA_VER}
+
+	cd "${KERNEL_DIR}/kernel-4.9"
+	git checkout ${KERNEL_VER}
+
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 	sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR=.*/CONFIG_EXTRA_FIRMWARE_DIR="..\/firmware\/"/g' .config
 
-	export KBUILD_BUILD_USER=user
-	export KBUILD_BUILD_HOST=custombuild
-
 	# Prepare Linux sources
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" olddefconfig
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" prepare
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" modules_prepare
+	make -j"${CPUS}" olddefconfig
+	make -j"${CPUS}" prepare
+	make -j"${CPUS}" modules_prepare
 
 	# Actually build kernel
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" tegra-dtstree="../hardware/nvidia"
+	make -j"${CPUS}" tegra-dtstree="../hardware/nvidia"
 
-	# Install kernel modules
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" modules_install INSTALL_MOD_PATH="${BUILD_DIR}/modules/"
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j"${CPUS}" headers_install INSTALL_HDR_PATH="${BUILD_DIR}/update/usr/"
-
-	rm ${BUILD_DIR}/modules/lib/modules/4.9.140+/build
-	rm ${BUILD_DIR}/modules/lib/modules/4.9.140+/source
-
-	find ${BUILD_DIR}/update/usr/include -name *.install* -exec rm {} \;
-	find ${BUILD_DIR}/update/usr/include -exec chmod 777 {} \;
-	create_update_modules ${BUILD_DIR}/modules/lib/ ${BUILD_DIR}/modules.tar.gz
-	create_update_modules ${BUILD_DIR}/update/ ${BUILD_DIR}/update.tar.gz
-	cp arch/arm64/boot/Image "${BUILD_DIR}"
-	cp arch/arm64/boot/dts/tegra210-icosa.dtb "${BUILD_DIR}"
-	rm -rf "${BUILD_DIR}"/modules "${BUILD_DIR}"/update/usr/include
+	make modules_install INSTALL_MOD_PATH=${MOD:-"${BUILD_DIR}/modules/"}
+	make headers_install INSTALL_HDR_PATH=${HDR:-"${BUILD_DIR}/update/usr/"}
 	echo "Done"
 }
 
-# Retrieve last argument as output directory
-BUILD_DIR="$(realpath "${@:$#}")"
-KERNEL_DIR="${BUILD_DIR}/kernel_r32"
-firmware_dir="${KERNEL_DIR}/firmware"
-PATCH_DIR="$(dirname "${BASH_SOURCE[0]}")/patch/"
+PostConfig() {
+	find "${BUILD_DIR}/update/usr/include" -name *.install* -exec rm {} \;
+	find "${BUILD_DIR}/update/usr/include" -exec chmod 777 {} \;
+	
+	create_update_modules "${BUILD_DIR}/modules/lib/" "${BUILD_DIR}/modules.tar.gz"
+	create_update_modules "${BUILD_DIR}/update/" "${BUILD_DIR}/update.tar.gz"
+	
+	cp arch/arm64/boot/Image \
+		arch/arm64/boot/dts/tegra210-icosa.dtb \
+		${BOOT_DIR:-"${BUILD_DIR}"}
 
-[[ -z ${ARCH} ]] && \
+	rm -rf "${BUILD_DIR}/modules" \
+		"${BUILD_DIR}/update/usr/include" \
+		"${BUILD_DIR}/modules/lib/modules/4.9.140+/source" \
+		"${BUILD_DIR}/modules/lib/modules/4.9.140+/build"
+}
+
+if [[ -z ${ARCH} ]]; then
 	echo "Target build ARCH not set! Exiting.." && exit 1
+fi
 
-[[ -z "${CROSS_COMPILE}" && $(uname -m) != "aarch64" ]] && \
+if [[ -z "${CROSS_COMPILE}" ]] ; then
 	echo "CROSS_COMPILE not set! Exiting.." && exit 1
+fi
 
-[[ ! -d "${BUILD_DIR}" ]] && \
+if [[ ! -d "${BUILD_DIR}" ]]; then
 	echo "Not a valid directory! Exiting.." && exit 1
+fi
 
 cd "${BUILD_DIR}" || exit
 
-# Download and prepare bits
-if [[ ! -e "${firmware_dir}" && -z "$(ls "${firmware_dir}" 2>/dev/null)" ]]; then Prepare_firmware;
-	else echo "${firmware_dir} exists! Skipping firmware setup/download..."; fi
-
-if [[ ! -e "${KERNEL_DIR}/kernel-4.9"  && -z "$(ls "${KERNEL_DIR}/kernel-4.9" 2>/dev/null)" ]]; then Prepare;
-	else echo "${KERNEL_DIR} exists! Skipping kernel files setup/download..."; fi
+if [[ ! -e ${KERNEL_DIR} ]]; then
+	Prepare
+fi
 
 Patch
 Build
+PostConfig
