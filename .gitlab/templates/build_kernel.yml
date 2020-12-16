@@ -1,6 +1,6 @@
-.build_kernel:
+build_kernel:
   image: "$CI_REGISTRY_IMAGE"
-  stage: .build_kernel
+  stage: build_kernel
   variables:
     KERNEL_VER: ""
     NVIDIA_VER: ""
