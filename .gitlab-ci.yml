@@ -1,44 +1,19 @@
-buildx:
-  image: docker:latest
-  stage: .pre
+stages:
+  - dependency_build
+  - build_kernel
+
+before_script:
+  - mkdir -p linux
+
+include:
+  - local: .gitlab/templates/build_docker_ci_images.yml
+  - local: .gitlab/templates/build_kernel.yml
+
+rel32-rebase:
+  extends: .build_kernel
+
+rel32-kvm:
+  extends: .build_kernel
   variables:
-    GIT_STRATEGY: none
-    BUILDX_VERSION: "v0.4.2"
-  services:
-    - docker:dind
-  script:
-    curl -sSLo docker-buildx "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-amd64"
-    - chmod a+x docker-buildx
-    - mkdir -p ~/.docker/cli-plugins
-    - mv docker-buildx ~/.docker/cli-plugins/docker-buildx
-    - docker buildx install
-
-deploy:
-  image: docker:latest
-  stage: .pre
-  services:
-    - name: docker:dind
-      command: ["--experimental"]
-  before_script:
-    - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-    - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-    - docker buildx create --use --name mybuilder
-  script:
-    - docker buildx build --platform linux/amd64,linux/arm64 --push -t "$CI_REGISTRY_IMAGE" .
-
-build:
-  image: "$CI_REGISTRY_IMAGE"
-  stage: build
-  before_script:
-    - apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get -qq -y install wget tar make git patch xz-utils gcc bc xxd gcc-aarch64-linux-gnu build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod
-    - mkdir ./build
-  script:
-    - export CROSS_COMPILE=aarch64-linux-gnu- && export ARCH=arm64 && export CPUS=$(nproc)
-    - ./l4t_kernel_prep_rel32.sh ./build
-  artifacts:
-    paths:
-      - ./build/Image
-      - ./build/tegra210-icosa.dtb
-      - ./build/modules.tar.gz
-      - ./build/update.tar.gz
+    KERNEL_VER: "linux-rel32-kvm"
+    PATCH:      "true"
