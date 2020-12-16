@@ -1,6 +1,6 @@
 stages:
   - dependency_build
-  - build_kernel
+  - kernel_build
 
 before_script:
   - mkdir -p linux
@@ -10,10 +10,10 @@ include:
   - local: .gitlab/templates/build_kernel.yml
 
 rel32-rebase:
-  extends: build_kernel
+  extends: .build_kernel
 
 rel32-kvm:
-  extends: build_kernel
+  extends: .build_kernel
   variables:
     KERNEL_VER: "linux-rel32-kvm"
     PATCH:      "true"

@@ -7,6 +7,7 @@ deploy:
   variables:
     BUILDX_VERSION: "v0.4.2"
   before_script:
+    - apk add --update curl && rm -rf /var/cache/apk/*
     - curl -sSLo docker-buildx "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-amd64"
     - chmod a+x docker-buildx
     - mkdir -p ~/.docker/cli-plugins

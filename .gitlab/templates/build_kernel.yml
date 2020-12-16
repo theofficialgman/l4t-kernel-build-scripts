@@ -1,11 +1,11 @@
-build_kernel:
+.build_kernel:
   image: "$CI_REGISTRY_IMAGE"
-  stage: build_kernel
+  stage: kernel_build
   variables:
     KERNEL_VER: ""
     NVIDIA_VER: ""
-    DTS_VER: ""
-    PATCH: ""
+    DTS_VER:    ""
+    PATCH:      ""
   script:
     - ./l4t_kernel_prep_rel32.sh ./linux
   artifacts:
