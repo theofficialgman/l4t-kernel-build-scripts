@@ -1,33 +1,30 @@
 buildx:
-  image: docker:19.03-git
-  stage: buildx
+  image: docker:latest
+  stage: .pre
   variables:
     GIT_STRATEGY: none
-  artifacts:
-    paths:
-      - buildx
-    expire_in: 1 hour
+    BUILDX_VERSION: "v0.4.2"
   services:
-    - docker:19.03-dind
+    - docker:dind
   script:
-    - export DOCKER_BUILDKIT=1
-    - git clone git://github.com/docker/buildx ./docker-buildx
-    - docker build --platform=local -o . ./docker-buildx
+    curl -sSLo docker-buildx "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-amd64"
+    - chmod a+x docker-buildx
+    - mkdir -p ~/.docker/cli-plugins
+    - mv docker-buildx ~/.docker/cli-plugins/docker-buildx
+    - docker buildx install
 
 deploy:
-  image: docker:19.03
-  stage: deploy
+  image: docker:latest
+  stage: .pre
   services:
-    - name: docker:19.03-dind
+    - name: docker:dind
       command: ["--experimental"]
   before_script:
-    - mkdir -p ~/.docker/cli-plugins
-    - mv buildx ~/.docker/cli-plugins/docker-buildx
     - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
     - docker buildx create --use --name mybuilder
-    - docker buildx build --platform linux/amd64,linux/arm64 --push -t $CI_REGISTRY_IMAGE .
+  script:
+    - docker buildx build --platform linux/amd64,linux/arm64 --push -t "$CI_REGISTRY_IMAGE" .
 
 build:
   image: "$CI_REGISTRY_IMAGE"
