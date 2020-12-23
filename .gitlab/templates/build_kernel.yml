@@ -6,6 +6,7 @@
     NVIDIA_VER: ""
     DTS_VER:    ""
     PATCH:      ""
+    CPUS:       4
   script:
     - ./l4t_kernel_prep_rel32.sh ./linux
   artifacts:
