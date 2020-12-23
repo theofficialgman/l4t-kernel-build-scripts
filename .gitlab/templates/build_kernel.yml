@@ -6,7 +6,7 @@
     NVIDIA_VER: ""
     DTS_VER:    ""
     PATCH:      ""
-    CPUS:       $(nproc)
+    CPUS:       "$(nproc)"
   script:
     - ./l4t_kernel_prep_rel32.sh ./linux
   artifacts:
