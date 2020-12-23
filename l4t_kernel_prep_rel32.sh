@@ -142,15 +142,14 @@ Build() {
 	git checkout ${KERNEL_VER}
 
 	cp arch/arm64/configs/tegra_linux_defconfig .config
-	sed -i 's/CONFIG_EXTRA_FIRMWARE_DIR=.*/CONFIG_EXTRA_FIRMWARE_DIR="..\/firmware\/"/g' .config
 
 	# Prepare Linux sources
-	make -j"${CPUS}" olddefconfig
-	make -j"${CPUS}" prepare
-	make -j"${CPUS}" modules_prepare
+	make olddefconfig
+	make prepare
+	make modules_prepare
 
 	# Actually build kernel
-	make -j"${CPUS}" tegra-dtstree="../hardware/nvidia"
+	make -j${CPUS} tegra-dtstree="../hardware/nvidia"
 
 	make modules_install INSTALL_MOD_PATH=${MOD:-"${BUILD_DIR}/modules/"}
 	make headers_install INSTALL_HDR_PATH=${HDR:-"${BUILD_DIR}/update/usr/"}
