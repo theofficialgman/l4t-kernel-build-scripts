@@ -142,7 +142,20 @@ Build() {
 	cd "${KERNEL_DIR}/kernel-4.9"
 	git checkout ${KERNEL_VER}
 
-	cd "${KERNEL_DIR}"
+ir -p "${BUILD_DIR}"
+	
+	cd "${KERNEL_DIR}/nvidia"
+	git checkout ${NVIDIA_VER}
+
+	cd "${KERNEL_DIR}/kernel-4.9"
+	git checkout ${KERNEL_VER}
+
+ "${KERNEL_DIR}/nvidia"
+	git checkout ${NVIDIA_VER}
+
+	cd "${KERNEL_DIR}/kernel-4.9"
+	git checkout ${KERNEL_VER}
+
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 
 	# Prepare Linux sources
