@@ -24,7 +24,8 @@ export CPUS=${CPUS:-$(($(getconf _NPROCESSORS_ONLN) - 1))}
 BUILD_DIR="$(realpath "${@:$#}")"
 KERNEL_DIR="${BUILD_DIR}/kernel_r32"
 FW_DIR="${KERNEL_DIR}/firmware"
-PATCH_DIR="$(dirname "${BASH_SOURCE[0]}")/patch/"
+CWD="$(dirname "${BASH_SOURCE[0]}")"
+PATCH_DIR="${CWD}/patch/"
 
 create_update_modules()
 {
@@ -141,6 +142,7 @@ Build() {
 	cd "${KERNEL_DIR}/kernel-4.9"
 	git checkout ${KERNEL_VER}
 
+	cd "${KERNEL_DIR}"
 	cp arch/arm64/configs/tegra_linux_defconfig .config
 
 	# Prepare Linux sources
@@ -171,6 +173,8 @@ PostConfig() {
 		"${BUILD_DIR}/update/usr/include" \
 		"${BUILD_DIR}/modules/lib/modules/4.9.140+/source" \
 		"${BUILD_DIR}/modules/lib/modules/4.9.140+/build"
+
+	cd "${CWD}"
 }
 
 if [[ -z ${ARCH} ]]; then
