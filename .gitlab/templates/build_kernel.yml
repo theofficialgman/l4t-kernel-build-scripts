@@ -11,7 +11,7 @@
     - ./l4t_kernel_prep_rel32.sh ./linux
   artifacts:
     paths:
-      - ./build/Image
-      - ./build/tegra210-icosa.dtb
-      - ./build/modules.tar.gz
-      - ./build/update.tar.gz
+      - ./linux/Image
+      - ./linux/tegra210-icosa.dtb
+      - ./linux/modules.tar.gz
+      - ./linux/update.tar.gz
