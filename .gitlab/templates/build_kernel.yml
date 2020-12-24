@@ -8,10 +8,10 @@
     PATCH:      ""
     CPUS:       4
   script:
-    - ./l4t_kernel_prep_rel32.sh ./linux
+    - ./l4t_kernel_prep_rel32.sh "$CI_PROJECT_DIR/linux"
   artifacts:
     paths:
-      - ./linux/Image
-      - ./linux/tegra210-icosa.dtb
-      - ./linux/modules.tar.gz
-      - ./linux/update.tar.gz
+      - "$CI_PROJECT_DIR/linux/Image"
+      - "$CI_PROJECT_DIR/linux/tegra210-icosa.dtb"
+      - "$CI_PROJECT_DIR/linux/modules.tar.gz"
+      - "$CI_PROJECT_DIR/linux/update.tar.gz"
