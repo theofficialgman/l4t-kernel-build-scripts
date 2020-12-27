@@ -3,7 +3,6 @@ stages:
   - kernel_build
 
 before_script:
-  - pwd
   - mkdir -p "$CI_PROJECT_DIR/linux"
 
 include:
