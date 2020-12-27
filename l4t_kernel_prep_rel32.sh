@@ -133,8 +133,6 @@ Patch() {
 
 Build() {
 	echo "Preparing Source and Creating Defconfig"
-
-	mkdir -p "${BUILD_DIR}"
 	
 	cd "${KERNEL_DIR}/nvidia"
 	git checkout ${NVIDIA_VER}
@@ -174,6 +172,7 @@ PostConfig() {
 		"${BUILD_DIR}/modules/lib/modules/4.9.140+/build"
 
 	cd "${CWD}"
+	pwd
 }
 
 if [[ -z ${ARCH} ]]; then
