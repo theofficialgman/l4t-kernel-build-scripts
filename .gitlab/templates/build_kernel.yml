@@ -8,7 +8,7 @@
     PATCH:      ""
     CPUS:       4
   script:
-    - ./l4t_kernel_prep_rel32.sh "$CI_PROJECT_DIR/linux"
+    - ./l4t_kernel_prep_rel32.sh "/build/linux"
   artifacts:
     paths:
       - "/build/linux/Image"
