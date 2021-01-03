@@ -7,11 +7,13 @@
     DTS_VER:    ""
     PATCH:      ""
     CPUS:       4
+  services:
+    - docker:dind
   script:
-    - ./l4t_kernel_prep_rel32.sh "/build/linux"
+    - ./l4t_kernel_prep_rel32.sh 
   artifacts:
     paths:
-      - "/build/linux/Image"
-      - "/build/linux/tegra210-icosa.dtb"
-      - "/build/linux/modules.tar.gz"
-      - "/build/linux/update.tar.gz"
+      - kernel/Image
+      - kernel/tegra210-icosa.dtb
+      - kernel/modules.tar.gz
+      - kernel/update.tar.gz

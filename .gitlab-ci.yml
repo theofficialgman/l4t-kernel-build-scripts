@@ -2,9 +2,6 @@ stages:
   - dependency_build
   - kernel_build
 
-before_script:
-  - mkdir -p "/build/linux"
-
 include:
   - local: .gitlab/templates/build_docker_ci_images.yml
   - local: .gitlab/templates/build_kernel.yml

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<!-- add sources -->
+	<remote name="gitlab" fetch="https://gitlab.com/switchroot" />
+	<remote name="incom" fetch="https://gitlab.incom.co/" revision="lineage-17.1" />
+
+	<project path="kernel/kernel-4.9" name="kernel/l4t-kernel-nvidia.git" remote="gitlab" revision="linux-rel32-rebase" />
+	<project path="kernel/nvidia" name="kernel/l4t-kernel-nvidia.git" remote="gitlab" revision="linux-rel32-rebase" /> 
+	<project path="kernel/hardware/nvidia/platform/t210/icosa/" name="kernel/l4t-platform-t210-switch.git" remote="gitlab" revision="linux-rel32" />
+	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu.git" path="kernel/nvgpu" remote="incom" />
+	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_tegra_common.git" path="kernel/hardware/nvidia/platform/tegra/common" remote="incom" />
+	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common.git" path="kernel/hardware/nvidia/platform/t210/common" remote="incom" />
+	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_tegra.git" path="kernel/hardware/nvidia/soc/tegra" remote="incom" />
+	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_t210.git" path="kernel/hardware/nvidia/soc/t210" remote="incom" />
+</manifest>
