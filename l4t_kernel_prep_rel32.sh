@@ -31,9 +31,10 @@ create_update_modules() {
 
 Prepare() {
 	mkdir -p "${FW_DIR}" "${KERNEL_DIR}/update" "${KERNEL_DIR}/modules"
-
-	repo init -b master -u https://gitlab.com/switchroot/kernel/l4t-kernel-build-scripts/
-	repo sync --force-sync --jobs ${CPUS}
+	curl https://storage.googleapis.com/git-repo-downloads/repo-1 > repo
+	chmod a+x repo
+	python3 repo init -u .
+	python3 repo sync --force-sync --jobs=${CPUS}
 
 	git -C "${KERNEL_DIR}/kernel-4.9" checkout -b "${KERNEL_VER}" 
 	git -C "${KERNEL_DIR}/nvidia" checkout -b "${NVIDIA_VER}" 

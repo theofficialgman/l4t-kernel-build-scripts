@@ -21,7 +21,7 @@ RUN apt update -y && apt install -y \
 	python \
 	python-dev \
 	kmod \
-	repo
+	curl
 RUN /bin/bash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [ "$ARCH" != "aarch64" ]; then \
@@ -31,4 +31,9 @@ RUN /bin/bash -c 'set -ex && \
 VOLUME /build
 WORKDIR /build
 COPY . /build
+
+RUN git config --global user.email "you@example.com"
+RUN git config --global user.name "Your Name"
+RUN git config --global color.ui false
+
 CMD /build/l4t_kernel_prep_rel32.sh 

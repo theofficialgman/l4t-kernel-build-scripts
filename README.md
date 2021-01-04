@@ -5,7 +5,7 @@
 On Ubuntu Focal :
 
 ```sh
-sudo apt-get install wget tar make git patch xz-utils gcc bc xxd gcc-aarch64-linux-gnu build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod
+sudo apt-get install repo wget tar make git patch xz-utils gcc bc xxd gcc-aarch64-linux-gnu build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod
 ```
 
 ## Usage
