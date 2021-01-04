@@ -12,7 +12,9 @@ DTS_VER=${DTS_VER:-"linux-rel32"}
 export KBUILD_BUILD_USER=${KBUILD_BUILD_USER:-"user"}
 export KBUILD_BUILD_HOST=${KBUILD_BUILD_HOST:-"custombuild"}
 export ARCH=${ARCH:-"arm64"}
-export CROSS_COMPILE=${CROSS_COMPILE:-"aarch64-linux-gnu-"}
+if [[ `uname -m` != aarch64 ]]; then
+	export CROSS_COMPILE=${CROSS_COMPILE:-"aarch64-linux-gnu-"}
+fi
 export CPUS=${CPUS:-$(($(getconf _NPROCESSORS_ONLN) - 1))}
 
 # Retrieve last argument as output directory
