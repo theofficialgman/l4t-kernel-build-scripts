@@ -4,7 +4,7 @@
 	<remote name="gitlab" fetch="https://gitlab.com/switchroot" />
 	<remote name="incom" fetch="https://gitlab.incom.co/" revision="lineage-17.1" />
 
-	<project path="kernel/kernel-4.9" name="kernel/l4t-kernel-nvidia.git" remote="gitlab" revision="linux-rel32-rebase" />
+	<project path="kernel/kernel-4.9" name="kernel/l4t-kernel-4.9.git" remote="gitlab" revision="linux-rel32-rebase" />
 	<project path="kernel/nvidia" name="kernel/l4t-kernel-nvidia.git" remote="gitlab" revision="linux-rel32-rebase" /> 
 	<project path="kernel/hardware/nvidia/platform/t210/icosa/" name="kernel/l4t-platform-t210-switch.git" remote="gitlab" revision="linux-rel32" />
 	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu.git" path="kernel/nvgpu" remote="incom" />
