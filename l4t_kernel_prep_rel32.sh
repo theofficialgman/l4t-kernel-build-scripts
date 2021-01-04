@@ -18,7 +18,7 @@ fi
 export CPUS=${CPUS:-$(($(getconf _NPROCESSORS_ONLN) - 1))}
 
 # Retrieve last argument as output directory
-CWD="$(dirname "${BASH_SOURCE[0]}")"
+CWD="$(realpath $(dirname "${BASH_SOURCE[0]}")")"
 KERNEL_DIR="${CWD}/kernel"
 FW_DIR="${KERNEL_DIR}/firmware"
 PATCH_DIR="${CWD}/patch/"
