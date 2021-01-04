@@ -36,9 +36,9 @@ Prepare() {
 	python3 repo init -u . -m default.xml -b master
 	python3 repo sync --force-sync --jobs=${CPUS}
 
-	git -C "${KERNEL_DIR}/kernel-4.9" checkout -b "${KERNEL_VER}" 
-	git -C "${KERNEL_DIR}/nvidia" checkout -b "${NVIDIA_VER}" 
-	git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/icosa/" checkout -b "${DTS_VER}" 
+	git -C "${KERNEL_DIR}/kernel-4.9" checkout "${KERNEL_VER}" 
+	git -C "${KERNEL_DIR}/nvidia" checkout "${NVIDIA_VER}" 
+	git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/icosa/" checkout "${DTS_VER}" 
 
 	echo "Download and extract tegra firmware"
 	wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
