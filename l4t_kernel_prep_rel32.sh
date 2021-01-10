@@ -28,8 +28,8 @@ Prepare() {
 	mkdir -p "${FW_DIR}" "${KERNEL_DIR}/update" "${KERNEL_DIR}/modules"
 	curl https://storage.googleapis.com/git-repo-downloads/repo-1 > repo
 	chmod a+x repo
-	#python3 repo init -u . -m default.xml -b master
-	#python3 repo sync --force-sync --jobs=${CPUS}
+	python3 repo init -u . -m default.xml -b master
+	python3 repo sync --force-sync --jobs=${CPUS}
 
 	if [[ -z `ls -A ${FW_DIR}` ]]; then
 		echo "Download and extract tegra firmware"
