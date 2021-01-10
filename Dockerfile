@@ -28,9 +28,12 @@ RUN /bin/bash -c 'set -ex && \
 	apt install -y gcc-aarch64-linux-gnu; \
     fi'
 
+RUN useradd -ms /bin/bash builder
 VOLUME /build
 WORKDIR /build
 COPY . /build
+RUN chown -R 1000:1000 /build
+USER builder
 
 RUN git config --global user.email "you@example.com"
 RUN git config --global user.name "Your Name"

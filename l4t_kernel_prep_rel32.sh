@@ -1,13 +1,6 @@
 #!/bin/bash
 set -e
 
-# Kernel repo: https://gitlab.com/switchroot/l4t-kernel-4.9
-KERNEL_VER=${KERNEL_VER:-"linux-rel32-rebase"}
-# Kernel_nvidia repository: https://gitlab.com/switchroot/l4t-kernel-nvidia
-NVIDIA_VER=${NVIDIA_VER:-"linux-rel32-rebase"}
-# DTS repository: https://gitlab.com/switchroot/l4t-platform-t210-switch
-DTS_VER=${DTS_VER:-"linux-rel32"}
-
 # Build variables
 export KBUILD_BUILD_USER=${KBUILD_BUILD_USER:-"user"}
 export KBUILD_BUILD_HOST=${KBUILD_BUILD_HOST:-"custombuild"}
@@ -35,20 +28,18 @@ Prepare() {
 	mkdir -p "${FW_DIR}" "${KERNEL_DIR}/update" "${KERNEL_DIR}/modules"
 	curl https://storage.googleapis.com/git-repo-downloads/repo-1 > repo
 	chmod a+x repo
-	python3 repo init -u . -m default.xml -b master
-	python3 repo sync --force-sync --jobs=${CPUS}
+	#python3 repo init -u . -m default.xml -b master
+	#python3 repo sync --force-sync --jobs=${CPUS}
 
-	git -C "${KERNEL_DIR}/kernel-4.9" checkout "${KERNEL_VER}" 
-	git -C "${KERNEL_DIR}/nvidia" checkout "${NVIDIA_VER}" 
-	git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/icosa/" checkout "${DTS_VER}" 
-
-	echo "Download and extract tegra firmware"
-	wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
-	tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-	tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-	mv "${CWD}"/lib/firmware/* "${FW_DIR}"
-	rm -rf Linux_for_Tegra usr/ lib/ etc/ var/ Tegra210_Linux_R32.4.3_aarch64.tbz2
-	echo "Done"
+	if [[ -z `ls -A ${FW_DIR}` ]]; then
+		echo "Download and extract tegra firmware"
+		wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
+		tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
+		tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
+		mv "${CWD}"/lib/firmware/* "${FW_DIR}"
+		rm -rf Linux_for_Tegra usr/ lib/ etc/ var/ Tegra210_Linux_R32.4.3_aarch64.tbz2
+		echo "Done"
+	fi
 }
 
 Patch() {
