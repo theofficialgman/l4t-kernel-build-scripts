@@ -30,16 +30,6 @@ Prepare() {
 	chmod a+x repo
 	python3 repo init -u . -m default.xml -b master
 	python3 repo sync --force-sync --jobs=${CPUS}
-
-	if [[ -z `ls -A ${FW_DIR}` ]]; then
-		echo "Download and extract tegra firmware"
-		wget -q -nc --show-progress https://developer.nvidia.com/embedded/L4T/r32_Release_v4.3/t210ref_release_aarch64/Tegra210_Linux_R32.4.3_aarch64.tbz2
-		tar xf Tegra210_Linux_R32.4.3_aarch64.tbz2 Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-		tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2
-		mv "${CWD}"/lib/firmware/* "${FW_DIR}"
-		rm -rf Linux_for_Tegra usr/ lib/ etc/ var/ Tegra210_Linux_R32.4.3_aarch64.tbz2
-		echo "Done"
-	fi
 }
 
 Patch() {
