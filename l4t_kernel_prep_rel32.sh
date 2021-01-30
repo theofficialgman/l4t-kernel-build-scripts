@@ -13,7 +13,6 @@ export CPUS=${CPUS:-$(($(getconf _NPROCESSORS_ONLN) - 1))}
 # Retrieve last argument as output directory
 CWD="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 KERNEL_DIR="${CWD}/kernel"
-FW_DIR="${KERNEL_DIR}/firmware"
 PATCH_DIR="${CWD}/patch/"
 
 create_update_modules() {
@@ -25,11 +24,20 @@ create_update_modules() {
 }
 
 Prepare() {
-	mkdir -p "${FW_DIR}" "${KERNEL_DIR}/update" "${KERNEL_DIR}/modules"
+	mkdir -p "${KERNEL_DIR}/update" "${KERNEL_DIR}/modules"
 	curl https://storage.googleapis.com/git-repo-downloads/repo-1 > repo
 	chmod a+x repo
 	python3 repo init -u . -m default.xml -b master
 	python3 repo sync --force-sync --jobs=${CPUS}
+
+	if [[ ! -d "${KERNEL_DIR}/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu" ]]; then
+		echo -e "\nSetting up aarch64 cross compiler"
+		wget -q -nc --show-progress https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+		tar xf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz -C "${KERNEL_DIR}"
+		rm gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+	fi
+
+	PATH="$PATH:$(realpath ${KERNEL_DIR}/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu)/bin/"
 }
 
 Patch() {
