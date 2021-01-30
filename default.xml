@@ -2,14 +2,15 @@
 <manifest>
 	<!-- add sources -->
 	<remote name="gitlab" fetch="https://gitlab.com/switchroot" />
-	<remote name="incom" fetch="https://gitlab.incom.co/" revision="lineage-17.1" />
+	<remote name="nv-tegra" fetch="git://nv-tegra.nvidia.com" revision="l4t/l4t-r32.5" />
 
-	<project path="kernel/kernel-4.9" name="kernel/l4t-kernel-4.9.git" remote="gitlab" revision="linux-rel32-rebase" />
-	<project path="kernel/nvidia" name="kernel/l4t-kernel-nvidia.git" remote="gitlab" revision="linux-rel32-rebase" /> 
+	<project path="kernel/kernel-4.9" name="kernel/l4t-kernel-4.9.git" remote="gitlab" revision="unified/l4t-r32.5-4.9" />
+	<project path="kernel/nvidia" name="kernel/l4t-kernel-nvidia.git" remote="gitlab" revision="unified/l4t-r32.5" /> 
 	<project path="kernel/hardware/nvidia/platform/t210/icosa/" name="kernel/l4t-platform-t210-switch.git" remote="gitlab" revision="linux-rel32" />
-	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_kernel_nvgpu.git" path="kernel/nvgpu" remote="incom" />
-	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_tegra_common.git" path="kernel/hardware/nvidia/platform/tegra/common" remote="incom" />
-	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_platform_t210_common.git" path="kernel/hardware/nvidia/platform/t210/common" remote="incom" />
-	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_tegra.git" path="kernel/hardware/nvidia/soc/tegra" remote="incom" />
-	<project name="CM-Shield/android_kernel_nvidia_linux-4.9_hardware_nvidia_soc_t210.git" path="kernel/hardware/nvidia/soc/t210" remote="incom" />
+
+	<project name="linux-nvgpu" path="kernel/nvgpu" remote="nv-tegra" />
+	<project name="device/hardware/nvidia/platform/tegra/common" path="kernel/hardware/nvidia/platform/tegra/common" remote="nv-tegra" />
+	<project name="device/hardware/nvidia/platform/t210/common" path="kernel/hardware/nvidia/platform/t210/common" remote="nv-tegra" />
+	<project name="device/hardware/nvidia/soc/tegra" path="kernel/hardware/nvidia/soc/tegra" remote="nv-tegra" />
+	<project name="device/hardware/nvidia/soc/t210" path="kernel/hardware/nvidia/soc/t210" remote="nv-tegra" />
 </manifest>
