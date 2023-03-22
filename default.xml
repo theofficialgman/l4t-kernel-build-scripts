@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 	<!-- switchroot remote -->
-	<remote name="switchroot" fetch="https://gitlab.com/switchroot" />
+	<remote name="switchroot-r32.5" fetch="https://gitlab.com/switchroot" revision="l4t/l4t-r32.5" />
+	<remote name="switchroot-5.0.0" fetch="https://gitlab.com/switchroot" revision="linux-5.0.0-dev" />
 	<!-- nvidia remote-->
 	<remote name="nv-tegra" fetch="git://nv-tegra.nvidia.com" revision="l4t/l4t-r32.5" />
 	<!-- theofficialgman remote -->
-	<remote name="theofficialgman" fetch="https://github.com/theofficialgman" />
+	<remote name="theofficialgman" fetch="https://github.com/theofficialgman" revision="l4t/l4t-r35.2.1" />
 
 	<!-- kernel-4.9 - linux itself -->
-	<project name="kernel/l4t-kernel-4.9.git" path="kernel/kernel-4.9" remote="switchroot" revision="linux-5.0.0-dev" />
+	<project name="kernel/l4t-kernel-4.9.git" path="kernel/kernel-4.9" remote="switchroot-5.0.0" />
 	<!-- nvidia's kernel drivers -->
-	<project name="linux-nvidia.git" path="kernel/nvidia" remote="theofficialgman" revision="l4t/l4t-r35.2.1" />
+	<project name="linux-nvidia.git" path="kernel/nvidia" remote="theofficialgman" />
 	<!-- nvidia GPU drivers -->
-	<project name="linux-nvgpu.git" path="kernel/nvgpu" remote="theofficialgman" revision="l4t/l4t-r35.2.1" />
+	<project name="linux-nvgpu.git" path="kernel/nvgpu" remote="theofficialgman" />
 
 	<!-- Tegra device-tree -->
 	<!-- <project name="device/hardware/nvidia/platform/tegra/common" path="kernel/hardware/nvidia/platform/tegra/common" remote="nv-tegra" />
 	<project name="device/hardware/nvidia/platform/t210/common" path="kernel/hardware/nvidia/platform/t210/common" remote="nv-tegra" />
 	<project name="device/hardware/nvidia/soc/tegra" path="kernel/hardware/nvidia/soc/tegra" remote="nv-tegra" />
 	<project name="device/hardware/nvidia/soc/t210" path="kernel/hardware/nvidia/soc/t210" remote="nv-tegra" /> -->
-	<project name="kernel/l4t-platform-tegra-common.git" path="kernel/hardware/nvidia/platform/tegra/common" remote="switchroot" />
-	<project name="kernel/l4t-platform-t210-common.git" path="kernel/hardware/nvidia/platform/t210/common" remote="switchroot" />
-	<project name="kernel/l4t-soc-tegra.git" path="kernel/hardware/nvidia/soc/tegra" remote="switchroot" />
-	<project name="kernel/l4t-soc-t210.git" path="kernel/hardware/nvidia/soc/t210" remote="switchroot" />
+	<project name="kernel/l4t-platform-tegra-common.git" path="kernel/hardware/nvidia/platform/tegra/common" remote="switchroot-r32.5" />
+	<project name="kernel/l4t-platform-t210-common.git" path="kernel/hardware/nvidia/platform/t210/common" remote="switchroot-r32.5" />
+	<project name="kernel/l4t-soc-tegra.git" path="kernel/hardware/nvidia/soc/tegra" remote="switchroot-r32.5" />
+	<project name="kernel/l4t-soc-t210.git" path="kernel/hardware/nvidia/soc/t210" remote="switchroot-r32.5" />
 	<!-- switch device-tree -->
-	<project name="kernel/l4t-platform-t210-switch.git" path="kernel/hardware/nvidia/platform/t210/nx"  remote="switchroot" revision="linux-5.0.0-dev" />	
+	<project name="kernel/l4t-platform-t210-switch.git" path="kernel/hardware/nvidia/platform/t210/nx"  remote="switchroot-5.0.0" />	
 </manifest>
 
