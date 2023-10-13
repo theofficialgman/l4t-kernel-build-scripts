@@ -6,6 +6,7 @@ export ARCH=arm64
 export CPUS=${CPUS:-$(($(getconf _NPROCESSORS_ONLN) - 1))}
 export CWD="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 export KERNEL_DIR="${CWD}/kernel"
+export KBUILD_OUTPUT=build_files/
 
 export KERNEL_BRANCH="linux-dev"
 export NX_VER="linux-dev"
@@ -97,13 +98,13 @@ PostConfig() {
 	#sudo cp -R firmware/ modules/lib
 	create_update_modules "${KERNEL_DIR}/modules/lib/" "${KERNEL_DIR}/modules.tar.gz"
 
-	mkimage -A arm64 -O linux -T kernel -C gzip -a 0x80200000 -e 0x80200000 -n CUST-L4T -d ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/zImage "${KERNEL_DIR}/uImage"
+	mkimage -A arm64 -O linux -T kernel -C gzip -a 0x80200000 -e 0x80200000 -n CUST-L4T -d ${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/zImage "${KERNEL_DIR}/uImage"
 
 	mkdtimg create "${KERNEL_DIR}/nx-plat.dtimg" --page_size=1000 \
-        ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210-odin.dtb	 --id=0x4F44494E \
-		${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210b01-odin.dtb --id=0x4F44494E --rev=0xb01 \
-		${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210b01-vali.dtb --id=0x56414C49 \
-		${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210b01-fric.dtb --id=0x46524947
+        ${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210-odin.dtb	 --id=0x4F44494E \
+		${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210b01-odin.dtb --id=0x4F44494E --rev=0xb01 \
+		${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210b01-vali.dtb --id=0x56414C49 \
+		${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210b01-fric.dtb --id=0x46524947
 
 	echo "Done"
 }
