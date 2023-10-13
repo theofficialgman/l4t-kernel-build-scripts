@@ -1,8 +1,8 @@
-# Initial Build Scripts
+# Build Scripts
 
 ## Dependencies
 
-On Ubuntu Focal :
+On Ubuntu :
 
 ```sh
 sudo apt-get install wget tar make git patch xz-utils gcc bc xxd build-essential bison flex python3 python3-distutils python3-dev swig python python-dev kmod
@@ -10,34 +10,18 @@ sudo apt-get install wget tar make git patch xz-utils gcc bc xxd build-essential
 
 ## Usage
 
-```txt
-Usage: l4t_kernel_prep_rel32.sh <dir>
-Opions:
-	ARCH=<cpu_architecture>	(default: arm64)
-	CROSS_COMPILE=<cross_compiler> (default: aarch64-gnu-linux-)
-	CPU=<number_of_threads> (Set the number of threads to use during compilation)
-	PATCH=true (apply patches from patch directoy)
-```
-
-## Building without Docker
-
+In the selected folder drop l4t-linux-build.sh and run it.
+If needed run `chmod 0755 l4t-linux-build.sh`
 ```sh
-./l4t_kernel_prep_rel32.sh
-```
-
-## Building using Docker
-
-```sh
-docker run --rm -it -v $(pwd):/build registry.gitlab.com/switchroot/kernel/l4t-kernel-build-scripts:latest
+./l4t-linux-build.sh
 ```
 
 The build files will be stored in the `kernel` directory.
-Here's the files you should get after a successfull build :
+Here's the files you should get after a successfull build:
 ```txt
-Image
-tegra210-icosa.dtb
+uImage
+nx-plat.dtimg
 modules.tar.gz
-update.tar.gz
 ```
 
 The rest of the files and directory are kept for later builds.
