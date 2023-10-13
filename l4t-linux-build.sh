@@ -42,6 +42,28 @@ Prepare() {
 		git clone -b ${DT_VER} --single-branch https://gitlab.com/switchroot/kernel/l4t-platform-t210-common "${KERNEL_DIR}/hardware/nvidia/platform/t210/common/"
 	fi
 
+	if [[ "$1" == "update" ]]; then
+		git -C "${KERNEL_DIR}/kernel-4.9" pull
+		git -C "${KERNEL_DIR}/nvidia" pull
+		git -C "${KERNEL_DIR}/nvgpu" pull
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/nx" pull
+		git -C "${KERNEL_DIR}/hardware/nvidia/soc/t210" pull
+		git -C "${KERNEL_DIR}/hardware/nvidia/soc/tegra/" pull
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/tegra/common/" pull
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/common/" pull
+	fi
+
+	if [[ "$1" == "reset" ]]; then
+		git -C "${KERNEL_DIR}/kernel-4.9" reset --hard origin/${NX_VER}
+		git -C "${KERNEL_DIR}/nvidia" reset --hard origin/${NV_VER}
+		git -C "${KERNEL_DIR}/nvgpu" reset --hard origin/${NG_VER}
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/nx" reset --hard origin/${DT_VER}
+		git -C "${KERNEL_DIR}/hardware/nvidia/soc/t210" reset --hard origin/${DT_VER}
+		git -C "${KERNEL_DIR}/hardware/nvidia/soc/tegra/" reset --hard origin/${DT_VER}
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/tegra/common/" reset --hard origin/${DT_VER}
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/common/" reset --hard origin/${DT_VER}
+	fi
+
 	# Setup linaro aarch64 GCC7 for cross compilation if needed
 	if [[ `uname -m` != aarch64 ]]; then
 		if [[ ! -d "${KERNEL_DIR}/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu" ]]; then
@@ -109,6 +131,6 @@ PostConfig() {
 	echo "Done"
 }
 
-Prepare
+Prepare $1
 Build
 PostConfig
