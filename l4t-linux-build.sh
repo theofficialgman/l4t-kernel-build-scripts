@@ -131,6 +131,6 @@ PostConfig() {
 	echo "Done"
 }
 
-Prepare
+Prepare $1
 Build
 PostConfig
