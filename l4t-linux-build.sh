@@ -76,7 +76,7 @@ Prepare() {
 		# Set cross compiler in PATH and CROSS_COMPILE string
 		export PATH="$(realpath ${KERNEL_DIR}/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu)/bin/:$PATH"
 		export CROSS_COMPILE=${CROSS_COMPILE:-"aarch64-linux-gnu-"}
-		export STRIP_BIN=${COMPILER_PARRENT_PATH}/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-strip
+		export STRIP_BIN=${KERNEL_DIR}/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-strip
 	else
 		export STRIP_BIN=strip
 	fi
@@ -84,10 +84,10 @@ Prepare() {
 	# Retrieve mkdtimg
 	if [[ ! -e "${KERNEL_DIR}/mkdtimg" ]]; then
 		wget https://android.googlesource.com/platform/system/libufdt/+archive/refs/heads/master/utils.tar.gz
-		tar xvf utils.tar.gz
+		tar xvf utils.tar.gz --exclude tests --exclude README.md
 		cp src/mkdtboimg.py "${KERNEL_DIR}/mkdtimg"
 		chmod a+x "${KERNEL_DIR}/mkdtimg"
-		rm -rf utils.tar.gz tests src README.md
+		rm -rf utils.tar.gz src
 	fi
 	export PATH="$(realpath ${KERNEL_DIR}):$PATH"
 }
