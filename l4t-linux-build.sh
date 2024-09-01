@@ -6,9 +6,9 @@ export ARCH=arm64
 export CPUS=${CPUS:-$(($(getconf _NPROCESSORS_ONLN) - 1))}
 export CWD="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 export KERNEL_DIR="${CWD}/kernel"
-export KBUILD_OUTPUT=build_files/
+export KBUILD_BUILD_USER=theofficialgman
+export KBUILD_BUILD_HOST=buildbot
 
-export KERNEL_BRANCH="linux-dev"
 export NX_VER="linux-dev"
 export NV_VER="linux-dev"
 export NG_VER="linux-3.4.0-r32.5"
@@ -29,7 +29,7 @@ create_update_modules() {
 Prepare() {
 	echo "Preparing Source"
 	if [[ -z `ls -A ${KERNEL_DIR}/kernel-4.9` ]]; then
-		git clone -b "${KERNEL_BRANCH}" --single-branch https://github.com/CTCaer/switch-l4t-kernel-4.9.git "${KERNEL_DIR}/kernel-4.9"
+		git clone -b "${NX_VER}" --single-branch https://github.com/CTCaer/switch-l4t-kernel-4.9.git "${KERNEL_DIR}/kernel-4.9"
 	fi
 
 	if [[ -z $(ls -A ${KERNEL_DIR}/nvidia) ]]; then
@@ -57,7 +57,7 @@ Prepare() {
 		git -C "${KERNEL_DIR}/kernel-4.9" reset --hard origin/${NX_VER}
 		git -C "${KERNEL_DIR}/nvidia" reset --hard origin/${NV_VER}
 		git -C "${KERNEL_DIR}/nvgpu" reset --hard origin/${NG_VER}
-		git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/nx" reset --hard origin/${DT_VER}
+		git -C "${KERNEL_DIR}/hardware/nvidia/platform/t210/nx" reset --hard origin/${NX_VER}
 		git -C "${KERNEL_DIR}/hardware/nvidia/soc/t210" reset --hard origin/${DT_VER}
 		git -C "${KERNEL_DIR}/hardware/nvidia/soc/tegra/" reset --hard origin/${DT_VER}
 		git -C "${KERNEL_DIR}/hardware/nvidia/platform/tegra/common/" reset --hard origin/${DT_VER}
@@ -96,17 +96,26 @@ Build() {
 	echo "Creating Defconfig and preparing kernel build"
 
 	cd "${KERNEL_DIR}/kernel-4.9"
+
+	# # clean build
+	# make mrproper
+
+	# make .config
 	make tegra_linux_defconfig
+
+	# prepare for build
 	make prepare
 	make modules_prepare
 
-	# Actually build kernel
+	# Build kernel
 	echo "Building kernel"
-	make -j${CPUS} tegra-dtstree="../../hardware/nvidia"
+	make -j${CPUS} tegra-dtstree="../hardware/nvidia"
 
-	echo "Copying moudles and firmware"
+	# Copy modules and firmware
+	echo "Copying modules and firmware"
 	make modules_install INSTALL_MOD_PATH="${KERNEL_DIR}/modules"
 	make firmware_install INSTALL_MOD_PATH="${KERNEL_DIR}/modules" INSTALL_FW_PATH="${KERNEL_DIR}/modules/lib/firmware"
+ 	rm "${KERNEL_DIR}/modules/lib/modules/4.9.140-l4t/build" "${KERNEL_DIR}/modules/lib/modules/4.9.140-l4t/source"
 
 	cd ../..
 }
@@ -115,18 +124,28 @@ PostConfig() {
 	echo "Stripping debug symbols from modules"
 	sudo find ${KERNEL_DIR}/modules -name "*.ko" -type f -exec $STRIP_BIN --strip-debug {} \;
 
-	echo "Packing up everything"
-	#TODO publish r32.3.1 firmware
-	#sudo cp -R firmware/ modules/lib
+  	echo "Create modules.tar.gz"
 	create_update_modules "${KERNEL_DIR}/modules/lib/" "${KERNEL_DIR}/modules.tar.gz"
 
-	mkimage -A arm64 -O linux -T kernel -C gzip -a 0x80200000 -e 0x80200000 -n CUST-L4T -d ${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/zImage "${KERNEL_DIR}/uImage"
+	mkimage -A arm64 -O linux -T kernel -C gzip -a 0x80200000 -e 0x80200000 -n theofficialgman-L4T-7-8-2024 -d ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/zImage "${KERNEL_DIR}/uImage"
 
 	mkdtimg create "${KERNEL_DIR}/nx-plat.dtimg" --page_size=1000 \
-        ${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210-odin.dtb	 --id=0x4F44494E \
-		${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210b01-odin.dtb --id=0x4F44494E --rev=0xb01 \
-		${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210b01-vali.dtb --id=0x56414C49 \
-		${KERNEL_DIR}/kernel-4.9/${KBUILD_OUTPUT}/arch/arm64/boot/dts/tegra210b01-fric.dtb --id=0x46524947
+        ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210-odin.dtb	 --id=0x4F44494E \
+		${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210b01-odin.dtb --id=0x4F44494E --rev=0xb01 \
+		${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210b01-vali.dtb --id=0x56414C49 \
+		${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210b01-fric.dtb --id=0x46524947
+
+	# Build linux-headers-4.9.140-l4t for external module support
+	cd "${KERNEL_DIR}/kernel-4.9"
+	make clean
+	sudo rm -rf "${KERNEL_DIR}/linux-headers-4.9.140-l4t"
+	cp -R "${KERNEL_DIR}/kernel-4.9" "${KERNEL_DIR}/linux-headers-4.9.140-l4t"
+	sudo chown -R root:root "${KERNEL_DIR}/linux-headers-4.9.140-l4t"
+	cd  "${KERNEL_DIR}/linux-headers-4.9.140-l4t"
+	sudo rm -rf .git .config.old .gitattributes .gitignore
+	sudo find . -depth -type f ! \( -path './include/*' -o -path './scripts/*' -o  -name 'Makefile*' -o -name 'Kconfig*' -o -name 'Kbuild*' -o -name '*.sh' -o -name '*.pl' -o -name '*.lds' -o -name '*.h' -o -name '.config' -o -name 'Module.symvers' \) -delete
+	sudo find . -depth -type f ! \( -path './include/*' -o -path './scripts/*' -o -path './arch/*' \) -a -name '*.h' -delete
+	cd ../..
 
 	echo "Done"
 }
