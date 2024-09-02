@@ -22,7 +22,7 @@ create_update_modules() {
 	find "$1" -type f -exec chmod 644 {} \;
 	find "$1" -name "*.sh" -type f -exec chmod 755 {} \;
 	find "$1" -name "*.py" -type f -exec chmod 755 {} \;
-	fakeroot chown -R root:root "$1"
+	sudo chown -R root:root "$1"
 	tar -C "$1" -czvpf "$2" .
 }
 
@@ -113,6 +113,7 @@ Build() {
 
 	# Copy modules and firmware
 	echo "Copying modules and firmware"
+	sudo rm -rf "${KERNEL_DIR}/modules"
 	make modules_install INSTALL_MOD_PATH="${KERNEL_DIR}/modules"
 	make firmware_install INSTALL_MOD_PATH="${KERNEL_DIR}/modules" INSTALL_FW_PATH="${KERNEL_DIR}/modules/lib/firmware"
  	rm "${KERNEL_DIR}/modules/lib/modules/4.9.140-l4t/build" "${KERNEL_DIR}/modules/lib/modules/4.9.140-l4t/source"
@@ -127,7 +128,7 @@ PostConfig() {
   	echo "Create modules.tar.gz"
 	create_update_modules "${KERNEL_DIR}/modules/lib/" "${KERNEL_DIR}/modules.tar.gz"
 
-	mkimage -A arm64 -O linux -T kernel -C gzip -a 0x80200000 -e 0x80200000 -n theofficialgman-L4T-7-8-2024 -d ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/zImage "${KERNEL_DIR}/uImage"
+	mkimage -A arm64 -O linux -T kernel -C gzip -a 0x80200000 -e 0x80200000 -n theofficialgman-L4T -d ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/zImage "${KERNEL_DIR}/uImage"
 
 	mkdtimg create "${KERNEL_DIR}/nx-plat.dtimg" --page_size=1000 \
         ${KERNEL_DIR}/kernel-4.9/arch/arm64/boot/dts/tegra210-odin.dtb	 --id=0x4F44494E \
