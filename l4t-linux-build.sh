@@ -29,7 +29,7 @@ create_update_modules() {
 Prepare() {
 	echo "Preparing Source"
 	if [[ -z `ls -A ${KERNEL_DIR}/kernel-4.9` ]]; then
-		git clone -b "${NX_VER}" --single-branch https://github.com/CTCaer/switch-l4t-kernel-4.9.git "${KERNEL_DIR}/kernel-4.9"
+		git clone -b "${NX_VER}" --single-branch https://github.com/theofficialgman/switch-l4t-kernel-4.9.git "${KERNEL_DIR}/kernel-4.9"
 	fi
 
 	if [[ -z $(ls -A ${KERNEL_DIR}/nvidia) ]]; then
